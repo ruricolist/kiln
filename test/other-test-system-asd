@@ -1,0 +1,3 @@
+;;; -*- mode: lisp -*-
+(defsystem "other-test-system"
+  :components ((:file "other-test-system")))

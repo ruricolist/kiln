@@ -1,0 +1,8 @@
+;;; -*- mode: lisp -*-
+(defpackage :kiln-test-system/kiln-test-script
+  (:use :cl))
+(in-package :kiln-test-system/kiln-test-script)
+
+(defun main (args)
+  (declare (ignore args))
+  (format t "Working~%"))

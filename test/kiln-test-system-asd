@@ -1,0 +1,3 @@
+;;; -*- mode: lisp -*-
+(defsystem "kiln-test-system"
+  :class :package-inferred-system)

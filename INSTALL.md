@@ -23,9 +23,16 @@
    $ make test && make install
    ```
 
-3. Test Kiln:
+3. Test Kiln is installed:
    ```
    $ kiln version
+   ```
+
+   If you want to make sure everything is working properly, you can
+   tell Kiln to run a self-diagnostic:
+
+   ```
+   $ kiln self-test
    ```
 
 You can now use Kiln for writing shebang scripts. The remaining steps are for writing package scripts.

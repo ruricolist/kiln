@@ -4,19 +4,26 @@ The Kiln project enables using Common Lisp for scripting. Kiln is *not* a curate
 
 “Scripting” means minimal overhead: writing small programs as single-file scripts, without an (explicit) compile step, as in Bash, sed, awk, TCL, Perl, Ruby, and Python. Kiln bridges the scripting edit-run-edit cycle and the interactive, incremental Lisp development style.
 
-Kiln makes it practical to write *very* small scripts. Kiln scripts are cheap to the point where it makes sense to expose even small pieces of Lisp functionality to the shell. For example, did you ever think of `format` as an alternative to `awk`? Or having the Lisp numeric tower in a command-line calculator? Or writing shell loops with the loop macro?
+Kiln makes it practical to write *very* small scripts. Kiln scripts are cheap to the point where it makes sense to expose even small pieces of Lisp functionality to the shell.
+
+For example, would you ever think of [`format` as an alternative to `awk`](scripts/format.lisp)?
 
 ``` sh
-# Use format instead of awk
 $ echo -e "a b c\nd e f" | kiln format "~:@(~a~),~a:~a~%"
 A,b:c
 D,e:f
+```
 
-# Lisp as a calculator
+Or having the Lisp numeric tower in a [command-line calculator](scripts/math.lisp)?
+
+``` sh
 $ kiln math "factorial(30)"
 265252859812191058636308480000000
+```
 
-# Use `cl:loop` at the command line
+Or writing [shell loops with the loop macro](scripts/loop.lisp)?
+
+``` sh
 $ kiln loop for '@i' from 0 to 5 do '!echo $i'
 0
 1
@@ -26,7 +33,7 @@ $ kiln loop for '@i' from 0 to 5 do '!echo $i'
 5
 ```
 
-Common Lisp excels at solving big problems. Kiln makes it easy to reach for Common Lisp to solve *small* problems. Of course, small programs grow, so Kiln provides a smooth path from script to real program.
+Common Lisp is designed to solve big problems. Kiln makes it easy to reach for Common Lisp to solve *small* problems.
 
 See [INSTALL.md](./INSTALL.md) for installation instructions.
 

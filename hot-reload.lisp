@@ -127,14 +127,12 @@ default.
 
 This would have the unfortunate side effect of implying that systems
 that were already compiled in the default fasl cache would need
-recompiling. To avoid this, we hack into ASDF to
-
-We hack into ASDF in such a way that, if its fasls are already
-compiled, we simply symlink them from the default fasl cache into
-ours.
+recompiling. To avoid this, we hack into ASDF in such a way that, if
+fasls are already compiled, we simply symlink them from the default
+fasl cache into ours.
 
 Note that this function is used exclusively for hot-reloading changed
-scripts."
+package scripts."
   ;; Redirect output so we don't pollute the fasl cache.
   (set-compiler-policy)
   (with-original-output-translations ()

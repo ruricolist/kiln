@@ -1,7 +1,7 @@
 (defpackage :kiln/scripts/version
   (:use :cl :kiln/path :cl-strftime :cmd)
   (:import-from :local-time)
-  (:documentation "Version of Kiln"))
+  (:documentation "Print the Kiln version"))
 (in-package :kiln/scripts/version)
 
 (defvar *build-date* (local-time:now))

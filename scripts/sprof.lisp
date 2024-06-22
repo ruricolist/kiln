@@ -5,7 +5,8 @@
    (:cli :clingon))
   (:import-from :kiln/utils
    :invoke-argv)
-  #+sbcl (:import-from :sb-sprof))
+  #+sbcl (:import-from :sb-sprof)
+  (:documentation "Invoke Kiln command with profiling"))
 (in-package :kiln/scripts/sprof)
 (def options
   (list

@@ -3,7 +3,7 @@
         :kiln/path :kiln/flags
         :lisp-invocation)
   (:import-from :clingon)
-  (:documentation "Rebuild kiln executable in-place")
+  (:documentation "Rebuild kiln executable")
   (:export :main))
 (in-package :kiln/scripts/rebuild)
 

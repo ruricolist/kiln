@@ -1,5 +1,6 @@
 (defpackage :kiln/scripts/eval
-  (:use :cl))
+  (:use :cl)
+  (:documentation "Eval arguments as Lisp forms"))
 (in-package :kiln/scripts/eval)
 
 (defvar *eof* "eof")

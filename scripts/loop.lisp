@@ -1,5 +1,5 @@
 (defpackage :kiln/scripts/loop
-  (:documentation "write shell loops with the loop macro")
+  (:documentation "Write shell loops with the loop macro")
   (:use :cl)
   (:import-from :cmd)
   (:import-from :serapeum :string^= :drop :string+)

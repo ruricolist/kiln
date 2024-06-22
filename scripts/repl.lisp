@@ -1,6 +1,7 @@
 (defpackage :kiln/scripts/repl
   (:use :cl :alexandria :serapeum)
-  (:export :repl))
+  (:export :repl)
+  (:documentation "Launch a simple REPL"))
 (in-package :kiln/scripts/repl)
 
 (defun repl ()

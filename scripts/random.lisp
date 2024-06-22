@@ -1,7 +1,7 @@
 (defpackage :kiln/scripts/random
   (:use :cl :alexandria :trivia :serapeum)
   (:shadow :@)
-  (:documentation "Generate random numbers."))
+  (:documentation "Generate random numbers in a given range"))
 (in-package :kiln/scripts/random)
 
 (defun main (args)

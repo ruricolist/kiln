@@ -6,7 +6,7 @@
   (:local-nicknames
    (:c :with-c-syntax)
    (:fp :floating-point-contractions))
-  (:documentation "Do math using C-style syntax.")
+  (:documentation "Do math with C-style syntax but a Lisp numeric tower")
   (:export :main))
 (in-package :kiln/scripts/math)
 

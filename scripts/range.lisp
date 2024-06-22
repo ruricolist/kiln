@@ -1,6 +1,7 @@
 (defpackage :kiln/scripts/range
   (:use :cl :serapeum :trivia)
-  (:shadowing-import-from :serapeum :@))
+  (:shadowing-import-from :serapeum :@)
+  (:documentation "Print a range of numbers"))
 (in-package :kiln/scripts/range)
 
 (defun main (args)

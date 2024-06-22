@@ -1,6 +1,6 @@
 (defpackage :kiln/scripts/script-cache
   (:use :cl :alexandria :serapeum :kiln/script-cache)
-  (:documentation "Inspect script cache"))
+  (:documentation "Inspect Kiln script cache"))
 (in-package :kiln/scripts/script-cache)
 
 (defun main (args)

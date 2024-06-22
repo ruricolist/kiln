@@ -35,6 +35,31 @@ $ kiln loop for '@i' from 0 to 5 do '!echo $i'
 
 Common Lisp is designed to solve big problems. Kiln makes it easy to reach for Common Lisp to solve *small* problems.
 
+You can use `kiln help` to summarize the built-in scripts. On a clean Kiln instal, the output looks like this:
+
+``` sh
+$ kiln help
+argv:         Print parsed arguments as a list
+command:      Launch a subprocess with cmd
+count:        Print number of arguments and input lines
+echo:         Echo arguments to standard output
+eval:         Eval arguments as Lisp forms
+fire:         Alias for rebuild
+format:       Use format like awk
+grep:         Grep files with CL-PPCRE
+help:         Print brief information about what scripts do
+loop:         Write shell loops with the loop macro
+math:         Do math with C-style syntax but a Lisp numeric tower
+random:       Generate random numbers in a given range
+range:        Print a range of numbers
+rebuild:      Rebuild kiln executable
+repl:         Launch a simple REPL
+script-cache: Inspect script cache
+self-test:    Perform self-test of Kiln itself
+sprof:        Invoke Kiln command with profiling
+version:      Print the Kiln version
+```
+
 See [INSTALL.md](./INSTALL.md) for installation instructions.
 
 ## Caveats

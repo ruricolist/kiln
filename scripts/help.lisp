@@ -1,6 +1,6 @@
 (defpackage :kiln/scripts/help
   (:use :cl :alexandria :serapeum :kiln/path)
-  (:documentation "Print brief information about what scripts do."))
+  (:documentation "Print brief information about what scripts do"))
 (in-package :kiln/scripts/help)
 
 (defun format-script-help (script &key one-line (indent 0))

@@ -1,7 +1,8 @@
 (defpackage :kiln/scripts/echo
   (:use :cl :alexandria :serapeum :kiln/utils)
   (:local-nicknames (:cli :clingon))
-  (:export :main))
+  (:export :main)
+  (:documentation "Echo arguments to standard output"))
 (in-package :kiln/scripts/echo)
 
 (def options
@@ -21,7 +22,7 @@
   (cli:make-command
    :name "kiln-echo"
    :description "Echo arguments to standard output."
-   :long-description "Echo arguments to stanard output, separated by spaces.
+   :long-description "Echo arguments to standard output, separated by spaces.
 Accepts -- to signal the end of the options."
    :options options))
 

@@ -3,7 +3,7 @@
   (:import-from :kiln/flags :dbg :dbg?)
   (:import-from :FiveAM :is)
   (:local-nicknames (:5am :fiveam))
-  (:documentation "Perform self-tests of kiln itself"))
+  (:documentation "Perform self-test of Kiln itself"))
 (in-package :kiln/scripts/self-test)
 
 (defvar *self*)

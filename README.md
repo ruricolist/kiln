@@ -35,7 +35,7 @@ $ kiln loop for '@i' from 0 to 5 do '!echo $i'
 
 Common Lisp is designed to solve big problems. Kiln makes it easy to reach for Common Lisp to solve *small* problems.
 
-You can use `kiln help` to summarize the built-in scripts. On a clean Kiln instal, the output looks like this:
+You can use `kiln help` to summarize the built-in subcommands. On a clean Kiln install, the output looks like this:
 
 ``` sh
 $ kiln help

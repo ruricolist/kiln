@@ -12,5 +12,17 @@
   (progn
     (format *error-output* "Quicklisp not found~%")
     (asdf:load-system *target-system*)))
+(format *error-output* "Lisp: ~a ~a~%"
+        (lisp-implementation-type)
+        (lisp-implementation-version))
+(let ((asdf-version (asdf:asdf-version))
+      (required-version "3.3.3.2"))
+  (format *error-output* "ASDF version: ~a~%" asdf-version)
+  (when (uiop:version< asdf-version required-version)
+    (format *error-output* "Error: Kiln requires ASDF >= ~a" required-version)
+    (finish-output *error-output*)
+    (uiop:quit 1)))
 (kiln/image:load-all-script-systems)
+(format *error-output* "~%")
+(finish-output *error-output*)
 (uiop:quit)

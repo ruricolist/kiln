@@ -15,6 +15,10 @@ elif [ "$LISP" = "ccl" ]; then
     LISP_OPTIONS=${CCL_OPTIONS}
 fi
 
+# NB The trailing : is needed not to shadow the default source
+# registry.
+export CL_SOURCE_REGISTRY="$(pwd):"
+
 # Load once, then dump to avoid serializing foreign pointers.
 ${LISP} ${LISP_OPTIONS} --load bootstrap/build0.lisp
 ${LISP} ${LISP_OPTIONS} --load bootstrap/build1.lisp

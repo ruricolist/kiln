@@ -2,13 +2,15 @@
   (:documentation "Write shell loops with the loop macro")
   (:use :cl)
   (:import-from :cmd)
-  (:import-from :serapeum :string^= :drop :string+)
+  (:import-from :serapeum :string^= :drop :string+ :null-if-empty)
   (:shadow :t)
   (:export :main))
 (in-package :kiln/scripts/loop)
 
 (defun parse-loop (args)
-  (let* ((shell (uiop:getenv "SHELL"))
+  (let* ((shell
+           (or (null-if-empty (uiop:getenv "SHELL"))
+               "/bin/sh"))
          (vars))
     (flet ((shell (arg)
              `(cmd:cmd

@@ -6,13 +6,18 @@ LISP=${LISP:-sbcl}
 export KILN_TARGET_SYSTEM=${KILN_TARGET_SYSTEM:-"kiln/build"}
 export KILN_TARGET_FILE=${KILN_TARGET_FILE:-"kiln"}
 
-SBCL_OPTIONS=${SBCL_OPTIONS:-"--noinform --disable-debugger"}
-CCL_OPTIONS=${CCL_OPTIONS:-"--batch --quiet"}
-LISP_OPTIONS=
+sbcl_run() {
+    sbcl --noinform --disable-debugger "$@"
+}
+
+ccl_run() {
+    ccl --batch --quiet
+}
+
 if [ "$LISP" = "sbcl" ]; then
-    LISP_OPTIONS=${SBCL_OPTIONS}
+    LISP_CMD=sbcl_run
 elif [ "$LISP" = "ccl" ]; then
-    LISP_OPTIONS=${CCL_OPTIONS}
+    LISP_CMD=ccl_run
 fi
 
 # NB The trailing : is needed not to shadow the default source
@@ -20,6 +25,6 @@ fi
 export CL_SOURCE_REGISTRY="$(pwd):"
 
 # Load once, then dump to avoid serializing foreign pointers.
-${LISP} ${LISP_OPTIONS} --load bootstrap/build0.lisp
-${LISP} ${LISP_OPTIONS} --load bootstrap/build1.lisp
+${LISP_CMD} --load bootstrap/build0.lisp
+${LISP_CMD} --load bootstrap/build1.lisp
 "./${KILN_TARGET_FILE}" version

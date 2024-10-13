@@ -1,5 +1,7 @@
 ;;; Build phase 0: compile. Needs to be a separate phase to avoid
 ;;; serializing foreign pointers.
+#+sbcl (require :asdf)
+(asdf:upgrade-asdf)
 (setf uiop/image::*lisp-interaction* nil)
 (defparameter *target-system* (uiop:getenv "KILN_TARGET_SYSTEM"))
 (assert (stringp *target-system*))

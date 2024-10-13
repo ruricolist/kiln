@@ -1,0 +1,42 @@
+name: CI
+
+on: [push, pull_request]
+
+env:
+  GITHUB_WORKSPACE: $HOME/common-lisp/serapeum
+
+jobs:
+  test:
+    name: ${{ matrix.lisp }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        lisp: [sbcl-bin]
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install SBCL
+        run: |
+          sudo apt update && sudo apt install -y wget sbcl
+      - name: Update ASDF
+        run: |
+          mkdir ~/common-lisp/ && cd ~/common-lisp/
+          pwd
+          wget https://common-lisp.net/project/asdf/archives/asdf.tar.gz
+          tar -xf asdf.tar.gz
+          sbcl --noinform --eval '(require :asdf)' --eval '(asdf:upgrade-asdf)' --eval '(princ (asdf:asdf-version))' --quit
+      - name: Install Quicklisp
+        run: |
+          cd
+          wget https://beta.quicklisp.org/quicklisp.lisp
+          sbcl --load 'quicklisp.lisp' --eval '(quicklisp-quickstart:install)' --eval '(let ((ql-util::*do-not-prompt* t)) (ql:add-to-init-file))'
+      - name: Build Kiln
+        run: |
+          export PATH=$PATH:$HOME/.local/bin
+          mkdir -p ~/.local/bin
+          make && make install
+      - name: Test Kiln
+        run: |
+          export CL_SOURCE_REGISTRY="$(pwd):"
+          kiln --debug self-test

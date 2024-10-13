@@ -1,4 +1,7 @@
 ;;; Build phase 1: dump the image.
+(require :asdf)
+(asdf:upgrade-asdf)
+(setf uiop/image::*lisp-interaction* nil)
 #+sb-core-compression
 (defmethod asdf:perform ((o asdf:image-op) (c asdf:system))
   ;; Force max compression.

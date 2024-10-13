@@ -56,7 +56,9 @@ This is useful when we need to test the exact output."
   (uiop:with-temporary-file (:pathname p)
     (delete-file p)
     (finishes
-      (cmd *self* "rebuild --target-file" p))
+      (cmd *self*
+           (and (dbg?) (list "--debug"))
+           "rebuild --target-file" p))
     (cmd "ls -alh" p)
     (finishes
       (cmd p "version"))))

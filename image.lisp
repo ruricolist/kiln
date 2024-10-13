@@ -80,13 +80,9 @@
       '(cffi:defcfun "setpgrp" :int)
       '(defun setpgrp ()))
 
-#+sbcl
-(defvar *sbcl-home* (sb-int:sbcl-homedir-pathname))
 
 (defun kiln-after-restore-image ()
   #+sbcl (sb-ext:disable-debugger)
-  ;; TODO Would it be better to preload them all?
-  #+sbcl (setf sb-sys::*sbcl-homedir-pathname* *sbcl-home*)
   #+sbcl (setf sb-ext:*derive-function-types* nil)
   (setf uiop/image::*lisp-interaction* nil)
   (setpgrp)

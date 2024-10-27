@@ -172,6 +172,18 @@ This is useful when we need to test the exact output."
       (cmd "touch" p)
       (is (not (equal output ($cmd *self* p)))))))
 
+(5am:test exec-no-unwind
+  (let ((script (asdf:system-relative-pathname :kiln "test/test-exec.lisp")))
+    (let ((result ($cmd "kiln" script)))
+      (is (equal (fmt "Before exec~%exec happened")
+                 result)))))
+
+(5am:test exec-unwind
+  (let ((script (asdf:system-relative-pathname :kiln "test/test-exec.lisp")))
+    (let ((result ($cmd "kiln" script "unwind")))
+      (is (equal (fmt "Before exec~%Unwinding happened~%exec happened")
+                 result)))))
+
 (defun main (args)
   (destructuring-bind (&optional (test 'test)) args
     (when (stringp test)

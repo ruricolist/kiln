@@ -15,8 +15,7 @@
   (:shadowing-import-from :iterate :in :collecting :sum :summing)
   (:shadowing-import-from :trivia :@)
   (:shadowing-import-from :cl-ppcre :scan)
-  (:export :scan :@
-           :kiln-readtable))
+  (:export :scan :@ :kiln-readtable))
 (in-package :kiln/user)
 
 (defreadtable kiln-readtable

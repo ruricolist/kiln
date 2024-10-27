@@ -134,23 +134,28 @@
            (resolve-executable executable))))
     (execv executable arglist)))
 
-(defun exec (command &key (unwind t))
-  "Replace the current process with COMMAND.
-COMMAND is parsed as if by `cmd:cmd'.
-
-If `unwind' is true (the default), `unwind-protect' forms in the
-user's program are run before the current process is replaced.
-Otherwise the program is simply replaced without unwinding.
-
-This is like the `exec' shell built-in, rather than `execvp(3)`, in
-that `arg0' is set automatically."
+(defun exec-no-dsl (command &key (unwind t))
   (if unwind
       (throw 'exec
         (lambda ()
-          (exec command :unwind nil)))
-      (multiple-value-bind (command kwargs) (parse-cmd-dsl command)
-        (when kwargs
-          (error "Keyword arguments not supported by ~s: "
-                 'exec
-                 kwargs))
-        (execvp (car command) command))))
+          (exec-no-dsl command :unwind nil)))
+      (execvp (car command) command)))
+
+(defun exec (&rest command)
+  "Replace the current process with COMMAND.
+COMMAND is parsed as if by `cmd:cmd'.
+
+Unless `:unwind nil` is passed as part of COMMAND, `unwind-protect'
+forms in the user's program are run before the current process is
+replaced. Otherwise the program is simply replaced without unwinding.
+
+This is like the `exec' shell built-in, rather than `execvp(3)`, in
+that `arg0' is set automatically."
+  (mvlet* ((command kwargs (parse-cmd-dsl command))
+           (unwind (getf kwargs :unwind t))
+           (kwargs (remove-from-plist kwargs :unwind)))
+    (when kwargs
+      (error "Keyword arguments not supported by ~s: ~a"
+             'exec
+             kwargs))
+    (exec-no-dsl command :unwind unwind)))

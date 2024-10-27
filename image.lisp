@@ -7,7 +7,6 @@
   (:shadowing-import-from :closer-mop :ensure-finalized)
   (:import-from :cffi)
   (:import-from :kiln/dispatch)
-  (:import-from :kiln/prelude)
   (:import-from :kiln/script-cache :populate-script-cache)
   (:import-from :kiln/script-cache :populate-script-cache)
   (:export

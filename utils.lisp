@@ -85,10 +85,6 @@
 
 (defun orange (s)
   (if (no (tty?)) s
-      (string+ #?"\x1b[0;33m" s #?"\x1b[0m")))
-
-(defun orange (s)
-  (if (no (tty?)) s
       (string+ #?"\x1b[0;35m" s #?"\x1b[0m")))
 
 (defun yellow (s)

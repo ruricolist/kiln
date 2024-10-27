@@ -7,19 +7,20 @@
    :kiln/script-cache
    :with-user-abort)
   (:import-from :cmd)
-  (:import-from :uiop)
   (:import-from :kiln/user)
+  (:import-from :uiop)
   (:export
    :dispatch
+   :exec
+   :invoke-entry-point
+   :invoke-script
+   :missing-main
+   :no-such-package
+   :no-such-script
    :script-error
    :script-error.name
-   :no-such-script
    :script-package-error
-   :script-package-error.package
-   :no-such-package
-   :missing-main
-   :invoke-script
-   :invoke-entry-point))
+   :script-package-error.package))
 (in-package :kiln/dispatch)
 
 (deftype script-search-result ()
@@ -311,7 +312,9 @@ handlers to give the desired behavior for scripting."
                                (when (repl-on-error?)
                                  (invoke-script "repl")))))
               (with-user-abort
-                (funcall *entry-point*)
+                  (funcall
+                   (catch 'exec
+                     (constantly (funcall *entry-point*))))
                 (quit (exit-code))))
           (serious-condition (e)
             (quit (error-exit-code e))))))))

@@ -11,7 +11,7 @@
             (and (> indent 0) indent)
             (let ((docs (script-package-docs script)))
               (if one-line
-                  (first (lines docs :count 1))
+                  (string-right-trim "." (first (lines docs :count 1)))
                   docs)))))
 
 (defun main (args)

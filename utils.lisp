@@ -125,7 +125,8 @@
                                 :initial-contents
                                 arglist
                                 :null-terminated-p t)))
-      (%execv path argv))))
+      (when-let (code (%execv path argv))
+        (error "execv(3) returned: ~a" code)))))
 
 (defun execvp (executable arglist)
   (let ((executable

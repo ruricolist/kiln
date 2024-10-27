@@ -1,7 +1,8 @@
 (defpackage :kiln/utils
   (:documentation "Utilities for writing scripts")
   (:use :cl :alexandria :serapeum :named-readtables)
-  (:import-from :cmd :resolve-dir)
+  (:import-from :cffi)
+  (:import-from :cmd :resolve-dir :parse-cmd-dsl)
   (:import-from :cl-ppcre)
   (:import-from :kiln/dispatch :invoke-script)
   (:local-nicknames
@@ -18,7 +19,8 @@
    :tty?
    :interpolate-escapes
    :invoke-script
-   :invoke-argv))
+   :invoke-argv
+   :exec))
 (in-package :kiln/utils)
 (in-readtable :interpol-syntax)
 
@@ -109,3 +111,37 @@
 (defun invoke-argv (argv)
   "Invoke another script."
   (apply #'invoke-script (first argv) (rest argv)))
+
+(cffi:defcfun (%execv "execv") :int
+  (path :string)
+  (args (:pointer :string)))
+
+(defun execv (executable arglist)
+  (assert (every #'stringp arglist))
+  (cffi:with-foreign-string (path executable)
+    (let ((argv
+            ;; We don't care about cleanup, the end is nigh.
+            (cffi:foreign-alloc :string
+                                :initial-contents
+                                arglist
+                                :null-terminated-p t)))
+      (%execv path argv))))
+
+(defun execvp (executable arglist)
+  (let ((executable
+          (namestring
+           (resolve-executable executable))))
+    (execv executable arglist)))
+
+(defun exec (command)
+  "Replace the current process with COMMAND.
+COMMAND is parsed as if by `cmd:cmd'.
+
+This is like the `exec' shell built-in, rather than `execvp(3)`, in
+that `arg0' is set automatically."
+  (multiple-value-bind (command kwargs) (parse-cmd-dsl command)
+    (when kwargs
+      (error "Keyword arguments not supported by ~s: "
+             'exec
+             kwargs))
+    (execvp (car command) command)))

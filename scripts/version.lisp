@@ -26,7 +26,9 @@
   ;; Report builtins.
   (format t "Builtins: ~{~a~^ ~}~%"
           (remove-duplicates
-           (mapcar #'script-name
-                   (list-all-scripts))
+           (sort
+            (mapcar #'script-name
+                    (list-all-scripts))
+            #'string<)
            :test #'equal
            :from-end t)))

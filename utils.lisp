@@ -5,6 +5,7 @@
   (:import-from :cmd :resolve-dir)
   (:import-from :cl-ppcre)
   (:import-from :kiln/dispatch :exec :invoke-script)
+  (:import-from :kiln/flags :dbg)
   (:local-nicknames
    (:interpol :cl-interpol))
   ;; TODO Remove when Quicklisp updates
@@ -133,6 +134,8 @@
     (execv executable arglist)))
 
 (defun exec-no-dsl (command &key (unwind t))
+  (dbg "Replacing current process with ~{~a~^ ~}"
+       command)
   (if unwind
       (throw 'exec
         (lambda ()

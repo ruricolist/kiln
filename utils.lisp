@@ -2,11 +2,13 @@
   (:documentation "Utilities for writing scripts")
   (:use :cl :alexandria :serapeum :named-readtables)
   (:import-from :cffi)
-  (:import-from :cmd :resolve-dir :parse-cmd-dsl)
+  (:import-from :cmd :resolve-dir)
   (:import-from :cl-ppcre)
   (:import-from :kiln/dispatch :exec :invoke-script)
   (:local-nicknames
    (:interpol :cl-interpol))
+  ;; TODO Remove when Quicklisp updates
+  (:shadow :parse-cmd-dsl)
   (:export
    :do-lines
    :walk-lines
@@ -136,6 +138,12 @@
         (lambda ()
           (exec-no-dsl command :unwind nil)))
       (execvp (car command) command)))
+
+;;; TODO Remove when Quicklisp updates.
+(defun parse-cmd-dsl (command)
+  (let ((cmd (cmd::parse-cmd command)))
+    (values (cmd::flatten-string-tokens (cmd::cmd-argv cmd))
+            (cmd::flatten-string-tokens (cmd::cmd-kwargs cmd)))))
 
 (defun exec (&rest command)
   "Replace the current process with COMMAND.

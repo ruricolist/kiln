@@ -4,7 +4,7 @@
         :lisp-invocation)
   (:local-nicknames
    (:cli :clingon))
-  (:import-from :kiln/utils :exec)
+  (:import-from :kiln/os :exec)
   (:import-from :uiop :getenv)
   (:documentation "Rebuild kiln executable")
   (:export :main))

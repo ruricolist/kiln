@@ -5,7 +5,7 @@
     (format t "Before exec~%")
     (finish-output)
     (unwind-protect
-         (kiln/utils:exec "echo exec happened" :unwind unwind?)
+         (kiln/os:exec "echo exec happened" :unwind unwind?)
       (progn
         (format t "Unwinding happened~%")
         (finish-output)))))

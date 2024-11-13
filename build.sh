@@ -53,5 +53,6 @@ chmod +x "$tmpfile"
 test -n "$("$tmpfile" version)"
 mv -f "$tmpfile" "$real_target_file"
 if test -z "${NO_PRINT_VERSION:-}"; then
-    "./${real_target_file}" version
+    # real_target_file may be a relative path.
+    PATH=$(pwd):$PATH "${real_target_file}" version
 fi

@@ -39,7 +39,7 @@
         (builtins-by-system-table *builtins-by-system*)))
 
 (defun load-all-script-systems (&key (script-systems (list-all-script-subsystems)))
-  (load-system script-systems :tolerant t))
+  (load-system script-systems))
 
 (defun list-builtin-script-subsystems ()
   (mapcar #'script-subsystem
@@ -78,7 +78,6 @@
 #.(if (uiop:os-unix-p)
       '(cffi:defcfun "setpgrp" :int)
       '(defun setpgrp ()))
-
 
 (defun kiln-after-restore-image ()
   #+sbcl (sb-ext:disable-debugger)

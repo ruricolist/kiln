@@ -20,17 +20,11 @@
                   (*error-output* (make-broadcast-stream)))
               (apply #'asdf:load-system system args)))))))
 
-(defun load-system (system/s &rest args &key (silent (not (dbg?))) tolerant
+(defun load-system (system/s &rest args &key (silent (not (dbg?)))
                     &allow-other-keys)
   (let ((fn (get-system-load-function :silent silent)))
     (dolist (system (ensure-list system/s))
-      (block nil
-        (handler-bind ((error
-                         (lambda (e)
-                           (when tolerant
-                             (dbg "Skipping ~a because: ~a" system e)
-                             (return)))))
-          (apply fn
-                 system
-                 :allow-other-keys t
-                 args))))))
+      (apply fn
+             system
+             :allow-other-keys t
+             args))))

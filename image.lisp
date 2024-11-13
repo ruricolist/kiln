@@ -9,8 +9,9 @@
   (:import-from :kiln/dispatch)
   (:import-from :kiln/script-cache :populate-script-cache)
   (:import-from :kiln/script-cache :populate-script-cache)
+  (:import-from :kiln/utils :setpgrp)
   (:export
-   :load-all-script-systems))
+    :load-all-script-systems))
 (in-package :kiln/image)
 
 (let (lib-names)
@@ -75,9 +76,6 @@
       (asdf:clear-configuration)
       (unload-all-foreign-libraries))))
 
-#.(if (uiop:os-unix-p)
-      '(cffi:defcfun "setpgrp" :int)
-      '(defun setpgrp ()))
 
 #+sbcl
 (defvar *sbcl-home* (sb-int:sbcl-homedir-pathname))

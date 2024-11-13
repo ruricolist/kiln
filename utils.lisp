@@ -24,7 +24,8 @@
    :interpolate-escapes
    :invoke-script
    :invoke-argv
-   :exec))
+   :exec
+   :setpgrp))
 (in-package :kiln/utils)
 (in-readtable :interpol-syntax)
 
@@ -172,3 +173,7 @@ that `arg0' is set automatically."
              'exec
              kwargs))
     (exec-no-dsl command :unwind unwind)))
+
+#.(if (uiop:os-unix-p)
+      '(cffi:defcfun "setpgrp" :int)
+      '(defun setpgrp ()))

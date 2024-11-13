@@ -209,7 +209,8 @@ package scripts."
            (when failure-p
              (error "Compiling ~a failed" path)
              (write-string (get-output-stream-string *standard-output*) stdout)
-             (write-string (get-output-stream-string *error-output*) stderr))))))
+             (write-string (get-output-stream-string *error-output*) stderr)
+             (quit :unix-status 1))))))
     (assert (uiop:file-exists-p fasl))
     (flags:dbg "Loading ~a" fasl)
     (flags:with-debug-output ()

@@ -20,6 +20,7 @@
    :yellow
    :bold
    :tty?
+   :clear-line
    :interpolate-escapes
    :invoke-script
    :invoke-argv
@@ -97,6 +98,11 @@
 (defun bold (s)
   (if (no (tty?)) s
       (string+ #?"\x1b[1m" s #?"\x1b[0m")))
+
+(defun clear-line (stream)
+  (when (tty?)
+    (write-string #?"\x1b[2K" stream)
+    (force-output stream)))
 
 (defun interpolate-escapes (string)
   (let ((interpol:*inner-delimiters* nil)

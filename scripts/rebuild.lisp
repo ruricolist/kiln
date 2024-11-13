@@ -38,7 +38,13 @@
     :long-name "heap-size"
     :description "Lisp heap size"
     :initial-value nil
-    :key :heap-size)))
+    :key :heap-size)
+   (cli:make-option
+    :flag
+    :description "Quicklisp"
+    :long-name "quicklisp"
+    :initial-value :false
+    :key :quicklisp)))
 
 (def command
   (cli:make-command
@@ -62,6 +68,12 @@
     (when-let (heap-size (cli:getopt opts :heap-size))
       (setf (getenv "KILN_HEAP_SIZE")
             (princ-to-string heap-size)))
+    (when (cli:getopt opts :quicklisp)
+      (setf (getenv "KILN_QUICKLISP")
+            (if (find-package :ql)
+                (asdf:system-relative-pathname "quicklisp"
+                                               "../setup.lisp")
+                (error "Quicklisp requested but not available"))))
     (let ((path (asdf:system-relative-pathname "kiln" "")))
       (uiop:chdir (namestring path))
       (exec "sh build.sh"))))

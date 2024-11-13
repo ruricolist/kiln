@@ -1,6 +1,9 @@
 ;;; Build phase 1: dump the image.
 (require :asdf)
 (asdf:upgrade-asdf)
+(let ((quicklisp (uiop:getenvp "KILN_QUICKLISP")))
+  (when quicklisp
+    (load quicklisp)))
 (setf uiop/image::*lisp-interaction* nil)
 #+sb-core-compression
 (defmethod asdf:perform ((o asdf:image-op) (c asdf:system))

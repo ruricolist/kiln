@@ -2,6 +2,9 @@
 ;;; serializing foreign pointers.
 #+sbcl (require :asdf)
 (asdf:upgrade-asdf)
+(let ((quicklisp (uiop:getenvp "KILN_QUICKLISP")))
+  (when quicklisp
+    (load quicklisp)))
 (setf uiop/image::*lisp-interaction* nil)
 (defparameter *target-system* (uiop:getenv "KILN_TARGET_SYSTEM"))
 (assert (stringp *target-system*))

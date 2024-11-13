@@ -17,7 +17,7 @@
   (progn
     (format *error-output* "Quicklisp not found~%")
     (asdf:load-system *target-system*)))
-(format *error-output* "Lisp: ~a ~a~%"
+(format *error-output* "Lisp version: ~a ~a~%"
         (lisp-implementation-type)
         (lisp-implementation-version))
 (let ((asdf-version (asdf:asdf-version))

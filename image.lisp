@@ -76,6 +76,8 @@
       (asdf:clear-configuration)
       (unload-all-foreign-libraries))))
 
+;;; We need to save the location of the SBCL home directory to be able
+;;; to load SBCL modules (sb-sprof, sb-introspect, etc.).
 
 #+sbcl
 (defvar *sbcl-home* (sb-int:sbcl-homedir-pathname))

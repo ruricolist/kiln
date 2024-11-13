@@ -4,6 +4,7 @@
    (:flags :kiln/flags)
    (:sys :kiln/system))
   (:import-from :cmd)
+  (:import-from :trivial-file-size :file-size-in-octets)
   (:shadowing-import-from :cl-ppcre :scan)
   (:export
    #:hot-reload
@@ -177,6 +178,7 @@ package scripts."
   (let* ((path (truename path))
          (fasl (script-fasl-output-location path)))
     (unless (and (uiop:file-exists-p fasl)
+                 (> (file-size-in-octets fasl) 0)
                  (> (file-write-date fasl)
                     (file-write-date path)))
       (if (not (uiop:file-exists-p fasl))

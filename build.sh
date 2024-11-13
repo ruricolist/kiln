@@ -3,15 +3,36 @@
 set -eux
 
 LISP=${LISP:-sbcl}
-export KILN_TARGET_SYSTEM=${KILN_TARGET_SYSTEM:-"kiln/build"}
-export KILN_TARGET_FILE=${KILN_TARGET_FILE:-"kiln"}
+: "${KILN_HEAP_SIZE:=32768}"
+export KILN_TARGET_SYSTEM="${KILN_TARGET_SYSTEM:-"kiln/build"}"
+
+real_target_file="${KILN_TARGET_FILE:-"kiln"}"
+
+tmpfile=$(mktemp -p "$(pwd)" -t tmpXXXXXXXXXX)
+# ASDF won't overwrite a file that exists.
+rm "$tmpfile"
+delete_tmpfile() {
+    rm -f "$tmpfile"
+}
+trap delete_tmpfile 0
+
+export KILN_TARGET_FILE="$tmpfile"
 
 sbcl_run() {
-    sbcl --noinform --disable-debugger "$@"
+    set -e
+    sbcl \
+        ${KILN_HEAP_SIZE:+--dynamic-space-size "${KILN_HEAP_SIZE}"} \
+        --merge-core-pages \
+        --noinform --disable-debugger \
+         "$@"
 }
 
 ccl_run() {
-    ccl --batch --quiet
+    set -e
+    ccl \
+        ${KILN_HEAP_SIZE:+--heap-reserve "${KILN_HEAP_SIZE}"} \
+        --batch --quiet \
+        "$@"
 }
 
 if [ "$LISP" = "sbcl" ]; then
@@ -22,9 +43,15 @@ fi
 
 # NB The trailing : is needed not to shadow the default source
 # registry.
-export CL_SOURCE_REGISTRY="$(pwd):"
+CL_SOURCE_REGISTRY="$(pwd):"
+export CL_SOURCE_REGISTRY
 
 # Load once, then dump to avoid serializing foreign pointers.
 ${LISP_CMD} --load bootstrap/build0.lisp
 ${LISP_CMD} --load bootstrap/build1.lisp
-"./${KILN_TARGET_FILE}" version
+chmod +x "$tmpfile"
+test -n "$("$tmpfile" version)"
+mv -f "$tmpfile" "$real_target_file"
+if test -z "${NO_PRINT_VERSION:-}"; then
+    "./${real_target_file}" version
+fi

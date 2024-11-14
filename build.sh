@@ -25,6 +25,8 @@ sbcl_run() {
         ${KILN_HEAP_SIZE:+--dynamic-space-size "${KILN_HEAP_SIZE}"} \
         ${KILN_STACK_SIZE:+--control-stack-size "${KILN_STACK_SIZE}"} \
         --merge-core-pages \
+        --disable-ldb \
+        --lose-on-corruption \
         --noinform --disable-debugger \
          "$@"
 }

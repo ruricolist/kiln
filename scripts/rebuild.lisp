@@ -16,6 +16,7 @@
     :string
     :description "Lisp implementation"
     :long-name "lisp"
+    :env-vars '("KILN_LISP")
     :key :lisp)
    (cli:make-option
     :string
@@ -36,8 +37,9 @@
    (cli:make-option
     :integer
     :long-name "heap-size"
-    :description "Lisp heap size"
+    :description "Lisp heap size (MB)"
     :initial-value nil
+    :env-vars '("KILN_HEAP_SIZE")
     :key :heap-size)
    (cli:make-option
     :integer
@@ -51,6 +53,7 @@
     :description "Quicklisp"
     :long-name "quicklisp"
     :initial-value :false
+    :env-vars '("KILN_QUICKLISP")
     :key :quicklisp)))
 
 (def command
@@ -65,7 +68,7 @@
             (cli:getopt opts :target-file))
     (force-output *error-output*)
     (when-let (lisp (cli:getopt opts :lisp))
-      (setf (getenv "LISP") lisp))
+      (setf (getenv "KILN_LISP") lisp))
     (when-let (target-system (cli:getopt opts :target-system))
       (setf (getenv "KILN_TARGET_SYSTEM") target-system))
     (when-let (target-file (cli:getopt opts :target-file))

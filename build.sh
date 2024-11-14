@@ -2,8 +2,8 @@
 
 set -eu
 
-LISP=${LISP:-sbcl}
 : "${KILN_DEBUG:=}"
+: "${KILN_LISP:=sbcl}"
 : "${KILN_HEAP_SIZE:=32768}"
 : "${KILN_STACK_SIZE:=}"
 
@@ -55,9 +55,9 @@ ccl_run() {
         "$@"
 }
 
-if [ "$LISP" = "sbcl" ]; then
+if [ "$KILN_LISP" = "sbcl" ]; then
     LISP_CMD=sbcl_run
-elif [ "$LISP" = "ccl" ]; then
+elif [ "$KILN_LISP" = "ccl" ]; then
     LISP_CMD=ccl_run
 fi
 

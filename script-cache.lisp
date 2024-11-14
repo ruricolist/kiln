@@ -100,4 +100,8 @@
   (flags:dbg "Populating script cache~%")
   (multiple-value-prog1
       (mapc #'cache-script (kiln-scripts-in-path))
-    (flags:dbg "Populated script cache")))
+    (flags:dbg "Populated script cache")
+    (setf (symbol-function 'kiln/user:main)
+          (lambda (args)
+            (declare (ignore args))
+            (error "No main in script")))))

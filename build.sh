@@ -4,6 +4,7 @@ set -eux
 
 LISP=${LISP:-sbcl}
 : "${KILN_HEAP_SIZE:=32768}"
+: "${KILN_STACK_SIZE:=}"
 export KILN_TARGET_SYSTEM="${KILN_TARGET_SYSTEM:-"kiln/build"}"
 
 real_target_file="${KILN_TARGET_FILE:-"kiln"}"
@@ -22,6 +23,7 @@ sbcl_run() {
     set -e
     sbcl \
         ${KILN_HEAP_SIZE:+--dynamic-space-size "${KILN_HEAP_SIZE}"} \
+        ${KILN_STACK_SIZE:+--control-stack-size "${KILN_STACK_SIZE}"} \
         --merge-core-pages \
         --noinform --disable-debugger \
          "$@"
@@ -31,6 +33,7 @@ ccl_run() {
     set -e
     ccl \
         ${KILN_HEAP_SIZE:+--heap-reserve "${KILN_HEAP_SIZE}"} \
+        ${KILN_STACK_SIZE:+--stack-size "${KILN_STACK_SIZE}"} \
         --batch --quiet \
         "$@"
 }

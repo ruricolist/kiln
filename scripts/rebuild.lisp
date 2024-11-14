@@ -40,6 +40,13 @@
     :initial-value nil
     :key :heap-size)
    (cli:make-option
+    :integer
+    :long-name "stack-size"
+    :description "Lisp stack size (MB)"
+    :initial-value nil
+    :env-vars '("KILN_STACK_SIZE")
+    :key :stack-size)
+   (cli:make-option
     :flag
     :description "Quicklisp"
     :long-name "quicklisp"
@@ -68,6 +75,9 @@
     (when-let (heap-size (cli:getopt opts :heap-size))
       (setf (getenv "KILN_HEAP_SIZE")
             (princ-to-string heap-size)))
+    (when-let (stack-size (cli:getopt opts :stack-size))
+      (setf (getenv "KILN_STACK_SIZE")
+            (princ-to-string stack-size)))
     (when (cli:getopt opts :quicklisp)
       (setf (getenv "KILN_QUICKLISP")
             (if (find-package :ql)

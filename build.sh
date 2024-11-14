@@ -28,6 +28,7 @@ sbcl_run() {
         --disable-ldb \
         --lose-on-corruption \
         --noinform --disable-debugger \
+        --eval '(setf sb-impl::*default-external-format* :utf8)' \
          "$@"
 }
 

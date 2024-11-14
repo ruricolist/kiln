@@ -67,8 +67,13 @@ CL_SOURCE_REGISTRY="$(pwd):"
 export CL_SOURCE_REGISTRY
 
 # Load once, then dump to avoid serializing foreign pointers.
+
+echo "Updating fasls" >&2
 ${LISP_CMD} --load bootstrap/build0.lisp
+
+echo "Saving image" >&2
 ${LISP_CMD} --load bootstrap/build1.lisp
+
 chmod +x "$tmpfile"
 test -n "$("$tmpfile" version)"
 mv -f "$tmpfile" "$real_target_file"

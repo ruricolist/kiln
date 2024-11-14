@@ -1,10 +1,16 @@
 #!/bin/sh
 
-set -eux
+set -eu
 
 LISP=${LISP:-sbcl}
+: "${KILN_DEBUG:=}"
 : "${KILN_HEAP_SIZE:=32768}"
 : "${KILN_STACK_SIZE:=}"
+
+if test -n "$KILN_DEBUG"; then
+    set -x
+fi
+
 export KILN_TARGET_SYSTEM="${KILN_TARGET_SYSTEM:-"kiln/build"}"
 
 real_target_file="${KILN_TARGET_FILE:-"kiln"}"
@@ -19,9 +25,17 @@ trap delete_tmpfile 0
 
 export KILN_TARGET_FILE="$tmpfile"
 
+hide_outputs() {
+    if test -z "${KILN_DEBUG:-}"; then
+        "$@" >/dev/null 2>&1
+    else
+        "$@"
+    fi
+}
+
 sbcl_run() {
     set -e
-    sbcl \
+    hide_outputs sbcl \
         ${KILN_HEAP_SIZE:+--dynamic-space-size "${KILN_HEAP_SIZE}"} \
         ${KILN_STACK_SIZE:+--control-stack-size "${KILN_STACK_SIZE}"} \
         --merge-core-pages \
@@ -34,7 +48,7 @@ sbcl_run() {
 
 ccl_run() {
     set -e
-    ccl \
+    hide_outputs ccl \
         ${KILN_HEAP_SIZE:+--heap-reserve "${KILN_HEAP_SIZE}"} \
         ${KILN_STACK_SIZE:+--stack-size "${KILN_STACK_SIZE}"} \
         --batch --quiet \

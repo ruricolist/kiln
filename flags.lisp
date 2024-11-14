@@ -24,7 +24,10 @@
         (filter-map #'find-keyword
                     (mapcar #'string-upcase
                             (mapcar (op (drop-prefix "--" _))
-                                    value)))))
+                                    value))))
+  (when (memq :debug *flags*)
+    (setf (uiop:getenv "KILN_DEBUG") "1"))
+  *flags*)
 
 (defun portable? ()
   (memq :portable *flags*))

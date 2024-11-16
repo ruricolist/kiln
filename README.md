@@ -81,7 +81,7 @@ Kiln supports two kinds of scripts: shebang scripts and package scripts.
 1. *Shebang scripts* are classic Unix scripts that start with `#!/usr/bin/env kiln`.
 2. *Package scripts* are a halfway point between Lisp and Unix. You can write Kiln scripts at the REPL as package-inferred systems. For example, after defining `local-scripts/myscript` as a local package, you can invoke it as `kiln myscript`.
 
-Both shebang scripts and package scripts *must* define a `main` function. For shebang scripts, this should be `kiln-user:main`. For package scripts, this should just be a `main` function in the package.
+Both shebang scripts and package scripts *must* define a `main` function. For shebang scripts, this should be `kiln-user:main`. For package scripts, this should just be a `main` function in the script’s package.
 
 ### Reloading, two ways
 
@@ -102,7 +102,7 @@ One difference from some scripting languages is that you do need to define a `ma
 
 ``` lisp
 #!/usr/bin/env kiln
-(defun kiln:main (args)
+(defun kiln-user:main (args)
   (print "Hello, world!"))
 ```
 
@@ -121,13 +121,13 @@ function with a list of command-line arguments.
 There is an internal “path” defining which systems to check for
 scripts. The first system on the path is always `local-scripts`, so
 defining a file at `~/common-lisp/local-scripts/myscript.lisp` or
-`~/quicklisp/local-projects/local-scripts/myscripts.lisp` implicitly
+`~/quicklisp/local-projects/local-scripts/myscript.lisp` implicitly
 makes `myscript` accessible with Kiln, either as subcommands of the
 Kiln executable (so `$ kiln myscript`) or through multicall.
 
 ### Kiln path
 
-Kiln looks in `local-scripts` by default, but other systems to search can be added via a `KILN_PATH_SYSTEMS` environment variable, with `PATH`-like behavior.
+Kiln always looks in `local-scripts` first, but other systems to search can be added via a `KILN_PATH_SYSTEMS` environment variable, with `PATH`-like behavior.
 
 ## Kiln environment
 

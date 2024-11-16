@@ -9,7 +9,7 @@
 
 (defun parse-loop (args)
   (let* ((shell
-           (or (null-if-empty (uiop:getenv "SHELL"))
+           (or (uiop:getenvp "SHELL")
                "/bin/sh"))
          (vars))
     (flet ((shell (arg)

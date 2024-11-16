@@ -167,23 +167,23 @@ This is useful when we need to test the exact output."
     (close s)
     ;; Work around file-write-date only having second precision.
     (sleep 2)
-    (let ((output ($cmd *self* p)))
+    (let ((output (kiln-exact-output p)))
       (is (string^= "Hello" output))
-      (is (equal output ($cmd *self* p)))
+      (is (equal output (kiln-exact-output p)))
       (cmd "touch" p)
-      (is (not (equal output ($cmd *self* p)))))))
+      (is (not (equal output (kiln-exact-output p)))))))
 
 (5am:test exec-no-unwind
-  (let ((script (asdf:system-relative-pathname :kiln "test/test-exec.lisp")))
-    (let ((result ($cmd "kiln" script)))
-      (is (equal (fmt "Before exec~%exec happened")
-                 result)))))
+  (let* ((script (asdf:system-relative-pathname :kiln "test/test-exec.lisp"))
+         (result (kiln-exact-output script)))
+    (is (equal (fmt "Before exec~%exec happened")
+               result))))
 
 (5am:test exec-unwind
-  (let ((script (asdf:system-relative-pathname :kiln "test/test-exec.lisp")))
-    (let ((result ($cmd "kiln" script "unwind")))
-      (is (equal (fmt "Before exec~%Unwinding happened~%exec happened")
-                 result)))))
+  (let* ((script (asdf:system-relative-pathname :kiln "test/test-exec.lisp"))
+         (result (kiln-exact-output script "unwind")))
+    (is (equal (fmt "Before exec~%Unwinding happened~%exec happened")
+               result))))
 
 (defun main (args)
   (destructuring-bind (&optional (test 'test)) args

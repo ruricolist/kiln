@@ -63,7 +63,7 @@ fi
 
 # NB The trailing : is needed not to shadow the default source
 # registry.
-CL_SOURCE_REGISTRY="$(pwd):"
+: "${CL_SOURCE_REGISTRY:="$(pwd):"}"
 export CL_SOURCE_REGISTRY
 
 # Load once, then dump to avoid serializing foreign pointers.

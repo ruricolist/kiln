@@ -138,6 +138,7 @@ This is useful when we need to test the exact output."
                      "Run ARGV with Kiln, but don't propagate debug flag."
                      (let ((*self* kiln))
                        (apply #'kiln-exact-output argv))))
+              (is (search "kiln-test-system" (kiln-exact-output "version")))
               (is (equal "Working" (kiln-exact-output "kiln-test-script")))
               (let ((contents (read-file-into-string script-file)))
                 ;; Test that we don't need the file anymore.

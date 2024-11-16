@@ -46,10 +46,12 @@ This is useful when we need to test the exact output."
                     :output s)))))
 
 (5am:test loop
-  (is (equal "0 1 2 3 4 5"
-             (substitute #\Space #\Newline
-                         ($cmd *self*
-                               "loop for '@i' from 0 to 5 do '!echo $i'")))))
+  (let ((cmd:*cmd-env*
+          '(("SHELL" . "/bin/sh"))))
+    (is (equal "0 1 2 3 4 5"
+               (substitute #\Space #\Newline
+                           (kiln-exact-output
+                            "loop for '@i' from 0 to 5 do '!echo $i'"))))))
 
 (5am:test rebuild
   (terpri *error-output*)

@@ -1,5 +1,5 @@
 ;;; Build phase 1: dump the image.
-(require :asdf)
+#+sbcl (require :asdf)
 (asdf:upgrade-asdf)
 (let ((quicklisp (uiop:getenvp "KILN_QUICKLISP")))
   (when quicklisp

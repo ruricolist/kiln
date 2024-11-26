@@ -55,15 +55,6 @@
          (split-sequence (character split-on) string)
          (cl-ppcre:split split-on string)))))
 
-
-(declaim (ftype (function (string) string)
-                red green yellow bold))
-
-(defun clear-line (stream)
-  (when (tty?)
-    (write-string #?"\x1b[2K" stream)
-    (force-output stream)))
-
 (defun interpolate-escapes (string)
   (let ((interpol:*inner-delimiters* nil)
         (*readtable*

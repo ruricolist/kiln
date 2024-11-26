@@ -178,11 +178,6 @@
           result)
         result)))
 
-(defun exit (&optional (code 0))
-  "Exit with code CODE."
-  (check-type code integer)
-  (throw 'exit code))
-
 (defun dispatch/package (script-name args)
   (labels ((run-package (package-name)
              (let* ((package

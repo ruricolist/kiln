@@ -6,11 +6,12 @@
    :serapeum)
   (:import-from :cffi)
   (:import-from :cmd)
-  (:import-from :kiln/dispatch :exec)
+  (:import-from :kiln/dispatch :exec :exit)
   (:import-from :kiln/flags :dbg)
   (:export
    :cd
    :exec
+   :exit
    :setpgrp))
 (in-package :kiln/os)
 
@@ -80,3 +81,8 @@ that `arg0' is set automatically."
              'exec
              kwargs))
     (exec-no-dsl command :unwind unwind)))
+
+(defun exit (&optional (code 0))
+  "Exit with code CODE."
+  (check-type code integer)
+  (throw 'exit code))

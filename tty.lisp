@@ -8,6 +8,7 @@
   (:local-nicknames
    (:interpol :cl-interpol))
   (:export
+   :beep
    :clear-line
    :bold
    :green
@@ -52,3 +53,7 @@
 (defun bold (s)
   (if (no (tty?)) s
       (string+ #?"\x1b[1m" s #?"\x1b[0m")))
+
+(defun beep (&key (stream *standard-output*))
+  (write-char #\Bel stream)
+  (finish-output stream))

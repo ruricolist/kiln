@@ -25,17 +25,9 @@ trap delete_tmpfile 0
 
 export KILN_TARGET_FILE="$tmpfile"
 
-hide_outputs() {
-    if test -z "${KILN_DEBUG:-}"; then
-        "$@" >/dev/null 2>&1
-    else
-        "$@"
-    fi
-}
-
 sbcl_run() {
     set -e
-    hide_outputs sbcl \
+    sbcl \
         ${KILN_HEAP_SIZE:+--dynamic-space-size "${KILN_HEAP_SIZE}"} \
         ${KILN_STACK_SIZE:+--control-stack-size "${KILN_STACK_SIZE}"} \
         --merge-core-pages \
@@ -48,7 +40,7 @@ sbcl_run() {
 
 ccl_run() {
     set -e
-    hide_outputs ccl \
+    ccl \
         ${KILN_HEAP_SIZE:+--heap-reserve "${KILN_HEAP_SIZE}"} \
         ${KILN_STACK_SIZE:+--stack-size "${KILN_STACK_SIZE}"} \
         --batch --quiet \

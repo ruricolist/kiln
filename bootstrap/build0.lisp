@@ -25,7 +25,10 @@
     (progn
       (format *error-output* "Found Quicklisp~%")
       (uiop:symbol-call :ql :register-local-projects)
-      (uiop:symbol-call :ql :quickload *target-system*))
+      (multiple-value-call #'uiop:symbol-call
+        :ql :quickload *target-system*
+        (if (uiop:getenvp "KILN_DEBUG") (values)
+            (values :silent t))))
   (progn
     (format *error-output* "Quicklisp not found~%")
     (asdf:load-system *target-system*)))

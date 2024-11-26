@@ -1,5 +1,5 @@
 (defpackage :kiln/scripts/version
-  (:use :cl :kiln/path :cl-strftime :cmd)
+  (:use :cl :serapeum :kiln/path :cl-strftime :cmd)
   (:import-from :local-time)
   (:documentation "Print the Kiln version"))
 (in-package :kiln/scripts/version)
@@ -7,8 +7,10 @@
 (defvar *build-date* (local-time:now))
 (defvar *version* (asdf:system-version (asdf:find-system "kiln")))
 (defvar *commit*
-  ($cmd "git log -1" (list "--pretty=format:%h")
-        :in (asdf:system-relative-pathname (asdf:find-system "kiln") "")))
+  (if (resolve-executable "git")
+      ($cmd "git log -1" (list "--pretty=format:%h")
+            :in (asdf:system-relative-pathname (asdf:find-system "kiln") ""))
+      "UNKNOWN"))
 
 (defun main (args)
   (when args

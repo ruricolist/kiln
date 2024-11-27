@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Install SBCL
         run: |
-          sudo apt update && sudo apt install -y wget sbcl
+          sudo apt update && sudo apt install -y sbcl wget yash
       - name: Update ASDF
         run: |
           mkdir ~/common-lisp/ && cd ~/common-lisp/
@@ -36,7 +36,7 @@ jobs:
         run: |
           export PATH=$PATH:$HOME/.local/bin
           mkdir -p ~/.local/bin
-          make && make install
+          SHELL=yash make && make install
       - name: Test Kiln
         run: |
           export CL_SOURCE_REGISTRY="$(pwd):"

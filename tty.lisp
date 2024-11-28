@@ -11,6 +11,7 @@
    (:interpol :cl-interpol))
   (:shadow :@)
   (:export
+   :*color*
    :beep
    :clear-line
    :color

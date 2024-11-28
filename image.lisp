@@ -40,7 +40,8 @@
         (builtins-by-system-table *builtins-by-system*)))
 
 (defun load-all-script-systems (&key (script-systems (list-all-script-subsystems)))
-  (load-system script-systems :tolerant t))
+  (load-system script-systems
+               :tolerant (uiop:getenvp "KILN_TOLERANT")))
 
 (defun list-builtin-script-subsystems ()
   (mapcar #'script-subsystem

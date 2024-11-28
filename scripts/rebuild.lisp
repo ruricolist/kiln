@@ -50,11 +50,18 @@
     :key :stack-size)
    (cli:make-option
     :flag
-    :description "Quicklisp"
+    :description "Use Quicklisp"
     :long-name "quicklisp"
     :initial-value :false
     :env-vars '("KILN_QUICKLISP")
-    :key :quicklisp)))
+    :key :quicklisp)
+   (cli:make-option
+    :flag
+    :description "Skip systems that fail to compile"
+    :long-name "tolerant"
+    :initial-value :false
+    :env-vars '("KILN_TOLERANT")
+    :key :tolerant)))
 
 (def command
   (cli:make-command
@@ -87,6 +94,9 @@
                 (asdf:system-relative-pathname "quicklisp"
                                                "../setup.lisp")
                 (error "Quicklisp requested but not available"))))
+    (when (cli:getopt opts :tolerant)
+      (setf (getenv "KILN_TOLERANT") "1"))
+
     (let ((path (asdf:system-relative-pathname "kiln" "")))
       (uiop:chdir (namestring path))
       (exec "sh build.sh"))))

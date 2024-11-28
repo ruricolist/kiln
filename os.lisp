@@ -23,6 +23,9 @@
       '(cffi:defcfun "setpgrp" :int)
       '(defun setpgrp ()))
 
+(setf (documentation #'setpgrp 'function)
+      "Make this process the leader of a new process group.")
+
 (defun cd (&optional (dir (user-homedir-pathname)))
   "Set the operating system directory and sync
 `*default-pathname-defaults*' to it."

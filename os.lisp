@@ -8,10 +8,14 @@
   (:import-from :cmd)
   (:import-from :kiln/dispatch :exec :exit)
   (:import-from :kiln/flags :dbg)
+  (:import-from :uiop :getenv :getenvp :hostname)
   (:export
    :cd
    :exec
    :exit
+   :getenv
+   :getenvp
+   :hostname
    :setpgrp))
 (in-package :kiln/os)
 

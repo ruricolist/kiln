@@ -33,6 +33,5 @@
     (format *error-output* "Quicklisp not found~%")
     (asdf:load-system *target-system*)))
 (kiln/image:load-all-script-systems)
-(format *error-output* "~%")
 (finish-output *error-output*)
 (uiop:quit)

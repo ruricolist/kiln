@@ -40,7 +40,7 @@
         (builtins-by-system-table *builtins-by-system*)))
 
 (defun load-all-script-systems (&key (script-systems (list-all-script-subsystems)))
-  (load-system script-systems))
+  (load-system script-systems :tolerant t))
 
 (defun list-builtin-script-subsystems ()
   (mapcar #'script-subsystem
@@ -81,6 +81,7 @@
 
 #+sbcl
 (defvar *sbcl-home* (sb-int:sbcl-homedir-pathname))
+
 
 (defun kiln-after-restore-image ()
   #+sbcl (sb-ext:disable-debugger)

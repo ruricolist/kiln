@@ -25,7 +25,7 @@
     :key :target-system)
    (cli:make-option
     :string
-    :description "Target file"
+    :description "Executable to generate"
     :long-name "target-file"
     :key :target-file)
    (cli:make-option

@@ -13,6 +13,7 @@ fi
 
 export KILN_TARGET_SYSTEM="${KILN_TARGET_SYSTEM:-"kiln/build"}"
 
+# We will rebind KILN_TARGET_FILE to a tmpfile during the build.
 real_target_file="${KILN_TARGET_FILE:-"kiln"}"
 
 tmpfile=$(mktemp -p "$(pwd)" -t tmpXXXXXXXXXX)

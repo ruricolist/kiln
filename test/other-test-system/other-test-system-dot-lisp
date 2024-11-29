@@ -1,1 +1,2 @@
+;;; -*- mode: lisp -*-
 (defpackage :other-test-system)

@@ -1,5 +1,6 @@
 (defpackage :kiln/path
   (:use :cl :alexandria :serapeum :kiln/stamp)
+  (:import-from :kiln/flags :+kiln-path-systems+)
   (:import-from :uiop
    :file-exists-p :getenv :getenvp :parse-unix-namestring)
   (:import-from :trivia :match)
@@ -56,7 +57,7 @@
 (-> scripts-path () path-list)
 (defun scripts-path ()
   (append *local-scripts-path*
-          (when-let (env (getenvp "KILN_PATH_SYSTEMS"))
+          (when-let (env (getenvp +kiln-path-systems+))
             (split-sequence-if (op (find _  ",;:"))
                                env
                                :remove-empty-subseqs t))

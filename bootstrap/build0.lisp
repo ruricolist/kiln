@@ -18,20 +18,24 @@
             required-version)
     (finish-output *error-output*)
     (uiop:quit 1)))
-(defparameter *target-system* (uiop:getenv "KILN_TARGET_SYSTEM"))
-(assert (stringp *target-system*))
-(assert (not (= 0 (length *target-system*))))
-(if (find-package :ql)
-    (progn
-      (format *error-output* "Found Quicklisp~%")
-      (uiop:symbol-call :ql :register-local-projects)
-      (multiple-value-call #'uiop:symbol-call
-        :ql :quickload *target-system*
-        (if (uiop:getenvp "KILN_DEBUG") (values)
-            (values :silent t))))
-  (progn
-    (format *error-output* "Quicklisp not found~%")
-    (asdf:load-system *target-system*)))
-(kiln/image:load-all-script-systems)
+(defun load-system (system)
+  (assert (stringp system))
+  (assert (not (= 0 (length system))))
+  (if (find-package :ql)
+      (progn
+        (format *error-output* "Found Quicklisp~%")
+        (uiop:symbol-call :ql :register-local-projects)
+        (multiple-value-call #'uiop:symbol-call
+          :ql :quickload system
+          (if (uiop:getenvp "KILN_DEBUG") (values)
+              (values :silent t))))
+      (progn
+        (format *error-output* "Quicklisp not found~%")
+        (asdf:load-system system))))
+(load-system "kiln/build")
+(let ((target-system (uiop:getenvp "KILN_TARGET_SYSTEM")))
+  (if target-system
+      (load-system target-system)
+      (kiln/image:load-all-script-systems)))
 (finish-output *error-output*)
 (uiop:quit)

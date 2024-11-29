@@ -6,12 +6,13 @@
   (:local-nicknames (:bt :bordeaux-threads))
   (:shadowing-import-from :closer-mop :ensure-finalized)
   (:import-from :cffi)
-  (:import-from :kiln/dispatch)
+  (:import-from :kiln/dispatch :*entry-point*)
+  (:import-from :kiln/flags :dbg :+kiln-target-system+)
   (:import-from :kiln/script-cache :populate-script-cache)
   (:import-from :kiln/script-cache :populate-script-cache)
   (:import-from :kiln/utils :setpgrp)
   (:export
-    :load-all-script-systems))
+   :load-all-script-systems))
 (in-package :kiln/image)
 
 (let (lib-names)
@@ -32,6 +33,10 @@
        (set-difference (asdf:already-loaded-systems)
                        script-systems
                        :test #'equal)))
+
+(defun mark-all-systems-immutable ()
+  (map nil 'asdf:register-immutable-system
+       (asdf:already-loaded-systems)))
 
 (defun record-builtins ()
   (setf *builtins-by-system*
@@ -54,6 +59,9 @@
       (unless (typep cls 'built-in-class)
         (ensure-finalized cls)))))
 
+(defparameter *target-system*
+  (uiop:getenvp +kiln-target-system+))
+
 (defun kiln-before-dump-image ()
   (setf uiop/image::*lisp-interaction* nil)
   #+sbcl (setf sb-ext:*derive-function-types* t)
@@ -65,14 +73,22 @@
       (record-builtins)
       ;; NB Quicklisp doesn't work if it's called inside of the ASDF
       ;; build-op. So we run it in a separate thread. (Is this still true?)
-      (let* ((subsystems (list-builtin-script-subsystems)))
-        (load-all-script-systems :script-systems subsystems)
-        ;; Mark systems immutable twice: first anything loaded by the
-        ;; package scripts (so the shebang scripts load faster), then
-        ;; again for anything loaded after the shebang scripts.
-        (mark-other-systems-immutable :script-systems subsystems)
-        (populate-script-cache)
-        (mark-other-systems-immutable :script-systems subsystems))
+      (if *target-system*
+          (progn
+            (load-system *target-system*)
+            (mark-all-systems-immutable)
+            (setf *entry-point*
+                  (uiop:ensure-function
+                   (asdf/system:component-entry-point
+                    (asdf:find-system *target-system*)))))
+          (let* ((subsystems (list-builtin-script-subsystems)))
+            (load-all-script-systems :script-systems subsystems)
+            ;; Mark systems immutable twice: first anything loaded by the
+            ;; package scripts (so the shebang scripts load faster), then
+            ;; again for anything loaded after the shebang scripts.
+            (mark-other-systems-immutable :script-systems subsystems)
+            (populate-script-cache)
+            (mark-other-systems-immutable :script-systems subsystems)))
       (finalize-all-classes)
       (asdf:clear-configuration)
       (unload-all-foreign-libraries))))
@@ -83,12 +99,12 @@
 #+sbcl
 (defvar *sbcl-home* (sb-int:sbcl-homedir-pathname))
 
-
 (defun kiln-after-restore-image ()
   #+sbcl (sb-ext:disable-debugger)
   ;; TODO Would it be better to preload them all?
-  #+sbcl (setf sb-sys::*sbcl-homedir-pathname* *sbcl-home*)
-  #+sbcl (setf sb-ext:*derive-function-types* nil)
+  (unless *target-system*
+    #+sbcl (setf sb-sys::*sbcl-homedir-pathname* *sbcl-home*)
+    #+sbcl (setf sb-ext:*derive-function-types* nil))
   (setf uiop/image::*lisp-interaction* nil)
   (setpgrp)
   (reload-all-foreign-libraries))

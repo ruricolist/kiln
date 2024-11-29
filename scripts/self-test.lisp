@@ -220,6 +220,17 @@ This is useful when we need to test the exact output."
     (is (equal (fmt "Before exec~%Unwinding happened~%exec happened")
                result))))
 
+(5am:test entry-point
+  (with-templated-test-system (:name "kiln-entry-point-system"
+                               :path path
+                               :kiln-path nil)
+    (uiop:with-temporary-file (:pathname tmp)
+      (cmd *self*
+           "rebuild --target-file" tmp
+           "--target-system kiln-entry-point-system")
+      (is (uiop:file-exists-p tmp))
+      (is (equal "Hello, world" ($cmd tmp))))))
+
 (defun main (args)
   (destructuring-bind (&optional (test 'test)) args
     (when (stringp test)

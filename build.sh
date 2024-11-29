@@ -6,12 +6,13 @@ set -eu
 : "${KILN_LISP:=sbcl}"
 : "${KILN_HEAP_SIZE:=32768}"
 : "${KILN_STACK_SIZE:=}"
+: "${KILN_TARGET_PACKAGE:=}"
+: "${KILN_TARGET_SYSTEM:=}"
 
 if test -n "$KILN_DEBUG"; then
     set -x
+    env | grep ^KILN_ >&2
 fi
-
-export KILN_TARGET_SYSTEM="${KILN_TARGET_SYSTEM:-"kiln/build"}"
 
 # We will rebind KILN_TARGET_FILE to a tmpfile during the build.
 real_target_file="${KILN_TARGET_FILE:-"kiln"}"
@@ -59,6 +60,9 @@ fi
 : "${CL_SOURCE_REGISTRY:="$(pwd):"}"
 export CL_SOURCE_REGISTRY
 
+export KILN_TARGET_PACKAGE
+export KILN_TARGET_SYSTEM
+
 # Load once, then dump to avoid serializing foreign pointers.
 
 echo "Updating fasls" >&2
@@ -70,7 +74,7 @@ ${LISP_CMD} --load bootstrap/build1.lisp
 chmod +x "$tmpfile"
 test -n "$("$tmpfile" version)"
 mv -f "$tmpfile" "$real_target_file"
-if test -z "${NO_PRINT_VERSION:-}"; then
+if test -z "${KILN_NO_PRINT_VERSION:-}"; then
     # real_target_file may be a relative path.
     PATH=$(pwd):$PATH "${real_target_file}" version
 fi

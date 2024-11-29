@@ -10,6 +10,7 @@
   (:import-from :kiln/user)
   (:import-from :uiop)
   (:export
+   :*entry-point*
    :dispatch
    :exec
    :invoke-entry-point

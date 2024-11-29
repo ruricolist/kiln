@@ -19,14 +19,11 @@
                         "2.2.6")
                        -7
                        1)))
-(defparameter *target-system* (uiop:getenv "KILN_TARGET_SYSTEM"))
-(assert (stringp *target-system*))
-(assert (not (= 0 (length *target-system*))))
 (setf (asdf/system:component-build-pathname
-       (asdf:find-system *target-system*))
+       (asdf:find-system "kiln/build"))
       (let ((string (uiop:getenvp "KILN_TARGET_FILE")))
         (if string
             (uiop:parse-unix-namestring string)
             #p"kiln")))
-(asdf:make *target-system* :type :program :monolithic t)
+(asdf:make "kiln/build" :type :program :monolithic t)
 (uiop:quit)

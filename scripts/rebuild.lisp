@@ -16,7 +16,7 @@
     :string
     :description "Lisp implementation"
     :long-name "lisp"
-    :env-vars '("KILN_LISP")
+    :env-vars (list +kiln-lisp+)
     :key :lisp)
    (cli:make-option
     :string
@@ -25,8 +25,14 @@
     :key :target-system)
    (cli:make-option
     :string
+    :description "Target package (defaults to system)"
+    :long-name "target-package"
+    :key :target-package)
+   (cli:make-option
+    :string
     :description "Executable to generate"
     :long-name "target-file"
+    :short-name #\o
     :key :target-file)
    (cli:make-option
     :flag
@@ -39,28 +45,28 @@
     :long-name "heap-size"
     :description "Lisp heap size (MB)"
     :initial-value nil
-    :env-vars '("KILN_HEAP_SIZE")
+    :env-vars (list +kiln-heap-size+)
     :key :heap-size)
    (cli:make-option
     :integer
     :long-name "stack-size"
     :description "Lisp stack size (MB)"
     :initial-value nil
-    :env-vars '("KILN_STACK_SIZE")
+    :env-vars (list +kiln-stack-size+)
     :key :stack-size)
    (cli:make-option
     :flag
     :description "Use Quicklisp"
     :long-name "quicklisp"
     :initial-value :false
-    :env-vars '("KILN_QUICKLISP")
+    :env-vars (list +kiln-quicklisp+)
     :key :quicklisp)
    (cli:make-option
     :flag
     :description "Skip systems that fail to compile"
     :long-name "tolerant"
     :initial-value :false
-    :env-vars '("KILN_TOLERANT")
+    :env-vars (list +kiln-tolerant+)
     :key :tolerant)))
 
 (def command
@@ -75,28 +81,34 @@
             (cli:getopt opts :target-file))
     (force-output *error-output*)
     (when-let (lisp (cli:getopt opts :lisp))
-      (setf (getenv "KILN_LISP") lisp))
-    (when-let (target-system (cli:getopt opts :target-system))
-      (setf (getenv "KILN_TARGET_SYSTEM") target-system))
+      (setf (getenv +kiln-lisp+) lisp))
+    (when-let* ((target-system (cli:getopt opts :target-system))
+                (target-package
+                 (or (cli:getopt opts :target-package)
+                     (string-invert-case target-system))))
+      (setf (getenv +kiln-target-system+) target-system
+            (getenv +kiln-target-package+) target-package))
+    (when (cli:getopt opts :target-package)
+      (error "Cannot provide --target-package without --target-system"))
     (when-let (target-file (cli:getopt opts :target-file))
-      (setf (getenv "KILN_TARGET_FILE") target-file))
-    (when (cli:getopt opts :no-version)
-      (setf (getenv "NO_PRINT_VERSION") "1"))
+      (setf (getenv +kiln-target-file+) target-file))
+    (when (or (cli:getopt opts :no-version)
+              (cli:getopt opts :target-system))
+      (setf (getenv +kiln-no-print-version+) "1"))
     (when-let (heap-size (cli:getopt opts :heap-size))
-      (setf (getenv "KILN_HEAP_SIZE")
+      (setf (getenv +kiln-heap-size+)
             (princ-to-string heap-size)))
     (when-let (stack-size (cli:getopt opts :stack-size))
-      (setf (getenv "KILN_STACK_SIZE")
+      (setf (getenv +kiln-stack-size+)
             (princ-to-string stack-size)))
     (when (cli:getopt opts :quicklisp)
-      (setf (getenv "KILN_QUICKLISP")
+      (setf (getenv +kiln-quicklisp+)
             (if (find-package :ql)
                 (asdf:system-relative-pathname "quicklisp"
                                                "../setup.lisp")
                 (error "Quicklisp requested but not available"))))
     (when (cli:getopt opts :tolerant)
-      (setf (getenv "KILN_TOLERANT") "1"))
-
+      (setf (getenv +kiln-tolerant+) "1"))
     (let ((path (asdf:system-relative-pathname "kiln" "")))
       (uiop:chdir (namestring path))
       (exec "sh build.sh"))))

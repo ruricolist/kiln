@@ -1,6 +1,8 @@
+;;; -*- mode: lisp -*-
 (defpackage :kiln-entry-point-system
-  (:use :cl))
+  (:use :cl)
+  (:export :main))
 (in-package :kiln-entry-point-system)
 
-(defun entry-point ()
-  (format *error-output* "Hello, world"))
+(defun main ()
+  (format t "Hello, world~%"))

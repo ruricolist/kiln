@@ -1,6 +1,17 @@
 (defpackage :kiln/flags
   (:use :cl :serapeum :alexandria)
   (:export
+   :+kiln-debug+
+   :+kiln-heap-size+
+   :+kiln-lisp+
+   :+kiln-no-print-version+
+   :+kiln-stack-size+
+   :+kiln-path-systems+
+   :+kiln-quicklisp+
+   :+kiln-target-file+
+   :+kiln-target-package+
+   :+kiln-target-system+
+   :+kiln-tolerant+
    :*flags*
    :dbg?
    :dbg
@@ -15,6 +26,18 @@
 (defvar *flags* nil)
 
 (defvar *exit-code* 0)
+
+(def +kiln-debug+ "KILN_DEBUG")
+(def +kiln-heap-size+ "KILN_HEAP_SIZE")
+(def +kiln-lisp+ "KILN_LISP")
+(def +kiln-no-print-version+ "KILN_NO_PRINT_VERSION")
+(def +kiln-stack-size+ "KILN_STACK_SIZE")
+(def +kiln-path-systems+ "KILN_PATH_SYSTEMS")
+(def +kiln-quicklisp+ "KILN_QUICKLISP")
+(def +kiln-target-file+ "KILN_TARGET_FILE")
+(def +kiln-target-package+ "KILN_TARGET_PACKAGE")
+(def +kiln-target-system+ "KILN_TARGET_SYSTEM")
+(def +kiln-tolerant+ "KILN_TOLERANT")
 
 (defplace exit-code ()
   *exit-code*)

@@ -1,0 +1,3 @@
+(defsystem "kiln-entry-point-system"
+  :build-operation "asdf:program-op"
+  :entry-point "kiln-entry-point-system:entry-point")

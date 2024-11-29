@@ -1,0 +1,6 @@
+(defpackage :kiln-entry-point-system
+  (:use :cl))
+(in-package :kiln-entry-point-system)
+
+(defun entry-point ()
+  (format *error-output* "Hello, world"))

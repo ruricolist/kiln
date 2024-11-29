@@ -6,7 +6,8 @@
   (:documentation "Perform self-test of Kiln itself"))
 (in-package :kiln/scripts/self-test)
 
-(defvar *self*)
+(defvar-unbound *self*
+  "Kiln executable running these tests.")
 
 (defun kiln-exact-output (&rest argv)
   "Run ARGV with Kiln, but without debug flag.
@@ -95,7 +96,13 @@ This is useful when we need to test the exact output."
         (cmd "ln -s" *self* prefixed-multicall)
         (is (equal version-results ($cmd prefixed-multicall)))))))
 
-(5am:test reload
+(defvar *source-registry* "")
+(defvar *path-systems* '())
+
+(defun call/templated-test-system (fn system-name &key (kiln-path t))
+  "Copy SYSTEM from the appropriate template into a temporary directory and make it loadable."
+  (declare (function fn) (string system-name))
+  (assert (notany #'upper-case-p system-name))
   (uiop:with-temporary-file (:pathname tmp)
     (delete-file tmp)
     (let* ((tmpdir (ensure-directories-exist tmp))
@@ -103,31 +110,57 @@ This is useful when we need to test the exact output."
            (tmpdir (uiop:parse-unix-namestring
                     (string+ (uiop:unix-namestring tmpdir) "/")))
            (test-system-dir
-             (ensure-directories-exist (path-join tmpdir #p"kiln-test-system/")))
-           (other-test-system-dir
-             (ensure-directories-exist (path-join tmpdir #p"other-test-system/")))
-           (templates-dir
+             (ensure-directories-exist
+              (path-join tmpdir
+                         (make-pathname
+                          :directory (list :relative system-name)))))
+           (template-dir
              (asdf:system-relative-pathname
               :kiln
-              "test/kiln-test-system")))
-      (copy-file (path-join templates-dir #p"kiln-test-system-asd")
-                 (path-join test-system-dir #p"kiln-test-system.asd"))
-      (copy-file (path-join templates-dir #p"other-test-system-asd")
-                 (path-join other-test-system-dir #p"other-test-system.asd"))
+              (fmt "test/~a" system-name)))
+           (source-files
+             (uiop:directory-files template-dir)))
+      (dolist (source-file source-files)
+        (let* ((old-name (pathname-name source-file))
+               (new-name (string-replace-all "-dot-" old-name "."))
+               (dest (path-join test-system-dir (pathname new-name))))
+          (assert (search "-dot-" old-name))
+          (copy-file source-file dest)))
+      (let* ((*source-registry*
+               (if (emptyp *source-registry*)
+                   (fmt "~a//:~a:"
+                        (drop-suffix "/" (uiop:unix-namestring tmpdir))
+                        (uiop:unix-namestring
+                         (asdf:system-relative-pathname :kiln "")))
+                   (fmt "~a//:~a"
+                        (drop-suffix "/" (uiop:unix-namestring tmpdir))
+                        *source-registry*)))
+             (*path-systems*
+               (if kiln-path
+                   (cons system-name *path-systems*)
+                   *path-systems*))
+             (*cmd-env*
+               `(("CL_SOURCE_REGISTRY" . ,*source-registry*)
+                 ("KILN_PATH_SYSTEMS"
+                  . ,(string-join *path-systems* ":")))))
+        (funcall fn test-system-dir)))))
+
+(defmacro with-templated-test-system ((&key name path (kiln-path t))
+                                      &body body)
+  (with-thunk (body path)
+    `(call/templated-test-system ,body ,name :kiln-path ,kiln-path)))
+
+(5am:test reload
+  (with-templated-test-system (:name "kiln-test-system"
+                               :path test-system-dir)
+    (with-templated-test-system (:name "other-test-system"
+                                 :path other-test-system-dir
+                                 :kiln-path nil)
+      (dbg ($cmd "env"))
       (let ((script-file (path-join test-system-dir #p"kiln-test-script.lisp")))
-        (copy-file (path-join templates-dir #p"kiln-test-script-lisp")
-                   script-file)
-        (copy-file (path-join templates-dir #p"other-test-system-lisp")
-                   (path-join test-system-dir #p"other-test-script.lisp"))
-        (let ((*cmd-env*
-                `(("CL_SOURCE_REGISTRY"
-                   . ,(fmt "~a//:~a:"
-                           (uiop:unix-namestring tmpdir)
-                           (uiop:unix-namestring
-                            (asdf:system-relative-pathname :kiln ""))))
-                  ("KILN_PATH_SYSTEMS" . "kiln-test-system")))
-              (debug-flag
-                (and (dbg?) (list "--debug"))))
+        (is (uiop:file-exists-p script-file))
+        (let ((debug-flag (and (dbg?) (list "--debug"))))
+          (dbg "Passing debug flag")
           (uiop:with-temporary-file (:pathname kiln)
             (delete-file kiln)
             (dbg "Building core")

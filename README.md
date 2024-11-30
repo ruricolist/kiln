@@ -4,7 +4,7 @@ The Kiln project enables using Common Lisp for scripting. Kiln is *not* a curate
 
 “Scripting” means minimal overhead: writing small programs as single-file scripts, without an (explicit) compile step, as in Bash, sed, awk, TCL, Perl, Ruby, and Python. Kiln bridges the scripting edit-run-edit cycle and the interactive, incremental Lisp development style.
 
-Kiln makes it practical to write *very* small scripts. Kiln scripts are cheap to the point where it makes sense to expose even small pieces of Lisp functionality to the shell.
+Common Lisp is designed to solve big problems. Kiln makes it easy to reach for Common Lisp to solve *small* problems. Kiln makes it practical to write *very* small scripts. Kiln scripts are cheap to the point where it makes sense to expose even small pieces of Lisp functionality to the shell.
 
 For example, would you ever think of [`format` as an alternative to `awk`](scripts/format.lisp)?
 
@@ -32,8 +32,6 @@ $ kiln loop for '@i' from 0 to 5 do '!echo $i'
 4
 5
 ```
-
-Common Lisp is designed to solve big problems. Kiln makes it easy to reach for Common Lisp to solve *small* problems.
 
 You can use `kiln help` to summarize the built-in subcommands. On a clean Kiln install, the output looks like this:
 

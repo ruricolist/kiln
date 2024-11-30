@@ -111,23 +111,26 @@ arguments.
 
 ## Writing package scripts
 
-Package scripts are subsytems of package-inferred systems.
+“Package scripts” are subsytems of package-inferred systems; their packages must define a `main` function.
 
-Kiln has a way (the Kiln “path,” discussed below) to tell which systems
-should be exposed as scripts. Kiln will dispatch to those scripts,
-through subcommands or multicalls, by calling their interned `main`
-function with a list of command-line arguments.
+Kiln has a way (`KILN_PATH_SYSTEMS`, discussed below) to tell which systems
+should have their subsystems exposed as scripts. Kiln will dispatch to those subsystem’s packages’ scripts, through subcommands or multicalls, by calling their interned `main` function with the list of command-line arguments.
+
+### `KILN_PATH_SYSTEMS`
 
 There is an internal “path” defining which systems to check for
-scripts. The first system on the path is always `local-scripts`, so
+scripts. The highest-priority system on the path is always `local-scripts`, so
 defining a file at `~/common-lisp/local-scripts/myscript.lisp` or
 `~/quicklisp/local-projects/local-scripts/myscript.lisp` implicitly
 makes `myscript` accessible with Kiln, either as subcommands of the
-Kiln executable (so `$ kiln myscript`) or through multicall.
+Kiln executable (so `$ kiln myscript`) or through multicall. The lowest-priority system is Kiln itself. In between are the systems in the (colon-separated) `KILN_PATH_SYSTEMS` environment variable.
 
-### Kiln path
+For example, if you set `KILN_PATH_SYSTEMS` to `my-fancy-scripts:scripts-i-found-somewhere`, and you attempt to invoke a script named `my-script`, Kiln will look in the following subsystems:
 
-Kiln always looks in `local-scripts` first, but other systems to search can be added via a `KILN_PATH_SYSTEMS` environment variable, with `PATH`-like behavior.
+1. `local-scripts/my-script`
+1. `my-fancy-scripts/my-script`
+1. `scripts-i-found-somewhere/my-script`
+1. `kiln/scripts/my-script` (built-in scripts)
 
 ## Kiln environment
 

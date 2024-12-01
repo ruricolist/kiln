@@ -7,6 +7,7 @@
    :+kiln-no-print-version+
    :+kiln-stack-size+
    :+kiln-path-systems+
+   :+kiln-poiu+
    :+kiln-quicklisp+
    :+kiln-target-file+
    :+kiln-target-package+
@@ -33,6 +34,7 @@
 (def +kiln-no-print-version+ "KILN_NO_PRINT_VERSION")
 (def +kiln-stack-size+ "KILN_STACK_SIZE")
 (def +kiln-path-systems+ "KILN_PATH_SYSTEMS")
+(def +kiln-poiu+ "KILN_POIU")
 (def +kiln-quicklisp+ "KILN_QUICKLISP")
 (def +kiln-target-file+ "KILN_TARGET_FILE")
 (def +kiln-target-package+ "KILN_TARGET_PACKAGE")

@@ -67,7 +67,14 @@
     :long-name "tolerant"
     :initial-value :false
     :env-vars (list +kiln-tolerant+)
-    :key :tolerant)))
+    :key :tolerant)
+   (cli:make-option
+    :flag
+    :description "Use POIU"
+    :long-name "poiu"
+    :initial-value :false
+    :env-vars (list +kiln-poiu+)
+    :key :poiu)))
 
 (def command
   (cli:make-command
@@ -109,6 +116,8 @@
                 (error "Quicklisp requested but not available"))))
     (when (cli:getopt opts :tolerant)
       (setf (getenv +kiln-tolerant+) "1"))
+    (when (cli:getopt opts :poiu)
+      (setf (getenv +kiln-poiu+) "1"))
     (let ((path (asdf:system-relative-pathname "kiln" "")))
       (uiop:chdir (namestring path))
       (exec "sh build.sh"))))

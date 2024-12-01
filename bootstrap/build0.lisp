@@ -36,6 +36,23 @@
 (let ((target-system (uiop:getenvp "KILN_TARGET_SYSTEM")))
   (if target-system
       (load-system target-system)
-      (kiln/image:load-all-script-systems)))
+      (progn
+        #+sbcl
+        (handler-case
+            (progn
+              (sb-ext:unlock-package :sb-sys)
+              (let ((key (intern "DEFAULT_INTERRUPT" :sb-sys)))
+                (unless (fboundp key)
+                  (export key :sb-sys)
+                  (eval
+                   `(defun ,key (signal)
+                      (sb-sys:enable-interrupt signal :default)))))
+              (sb-ext:lock-package :sb-sys)
+              (load-system "poiu")
+              (setf sb-ext:*on-package-variance* '(:warn t)))
+          (error (e)
+            (format *error-output* "Could not load POIU: ~a"
+                    e)))
+        (kiln/image:load-all-script-systems))))
 (finish-output *error-output*)
 (uiop:quit)

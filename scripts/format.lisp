@@ -1,5 +1,6 @@
 (defpackage :kiln/scripts/format
   (:use :cl :alexandria :serapeum :kiln)
+  (:import-from :clawk)
   (:import-from :clingon)
   (:documentation "Use format like awk"))
 (in-package :kiln/scripts/format)
@@ -34,8 +35,8 @@
       (let ((list? (clingon:getopt opts :list)))
         (with-boolean (list?)
           (let ((formatter (compile nil (eval `(formatter ,control-string)))))
-            (do-lines (line)
-              (let ((fields (fields line field-separator)))
+            (clawk:for-stream-lines (*standard-input*)
+              (let ((fields (clawk:split nil field-separator)))
                 (:if list?
                      (format t formatter fields)
                      (format t "~?" formatter fields))))))))))

@@ -136,12 +136,12 @@ When a Kiln script runs (through Kiln), the following are always true:
 
 - All ASDF systems present when Kiln was last rebuilt are marked as immutable and will not be reloaded.
 - All classes are finalized.
-- A signal handler is in place for `SIGINT` (`C-c`).
 - `*random-state*` has been re-initialized.
 - `*standard-output*` points to stdout, `*error-output*` and `*trace-output*` point to stderr, and `*terminal-io*` and `*debug-io*` are two-way streams on `*standard-input*` and `*error-output*`.
 - Unless `--debug` is passed to Kiln, `*compile-verbose*` `*compile-print*`, `*load-verbose*` and `*load-print*` are bound to `nil`.
 - There is a handler in place to exit on EOF on any of stdin, stderr, or stdout.
 - `*default-pathname-defaults*` is bound to the OS-level working directory.
+- A handler is in place for `SIGINT` (`C-c`). If `SIGINT` is not handled, then the process will exit in such a way callers can see it exited with sigint; see https://www.cons.org/cracauer/sigint.html.
 - There is a top-level error handler in place. Normally it prints the error (and a backtrace if Kiln gets `--debug` or `--backtrace`), and returns an error code based on the generic function `error-exit-code`. (If `--repl-on-error` is specified to Kiln, then it drops into a REPL instead.)
 - You can always use `kiln:exit` to exit with a particular exit code. (Unlike `uiop:quit` this is guaranteed to unwind.)
 

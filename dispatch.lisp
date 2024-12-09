@@ -311,5 +311,14 @@ handlers to give the desired behavior for scripting."
                    (catch 'exec
                      (constantly (funcall *entry-point*))))
                 (quit (exit-code))))
+          (user-abort (e)
+            ;; Resignal so the process finally gets killed by a
+            ;; signal and WIFSIGNALED can detect it.
+            #+sbcl
+            (progn
+              (sb-sys:enable-interrupt sb-unix:sigint :default)
+              (sb-posix:kill 0 sb-unix:sigint))
+            #-sbcl
+            (signal e))
           (serious-condition (e)
             (quit (error-exit-code e))))))))

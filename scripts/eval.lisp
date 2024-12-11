@@ -6,7 +6,7 @@
 (defvar *eof* "eof")
 
 (defun main (args)
-  (let ((*package* (find-package :cl-user)))
+  (with-standard-io-syntax
     (dolist (arg args)
       (with-input-from-string (in arg)
         (loop for form = (read in nil *eof*)

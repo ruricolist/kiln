@@ -1,6 +1,7 @@
 (defpackage :kiln/scripts/grep
   (:use :cl :alexandria :serapeum :cl-ppcre :kiln)
   (:import-from :clingon)
+  (:import-from :clawk)
   (:documentation "Grep files with CL-PPCRE")
   (:shadowing-import-from :cl-ppcre :scan))
 (in-package :kiln/scripts/grep)
@@ -84,14 +85,15 @@
       (dolist (file files)
         ;; TODO print file name?
         (handler-case
-            (with-input-from-file (in file)
-              (do-lines (line in)
-                (when (:if fixed-strings?
-                           (every (op (search _ line)) patterns)
-                           (every (op (scan _ line)) scanners))
-                  (:when print-filenames?
-                    (format t "~a: "
-                            (bold (uiop:native-namestring file))))
-                  (format t "~a~%" line))))
+            (clawk:for-file-lines (file in line)
+              (when (:if fixed-strings?
+                         (every (op (search _ line)) patterns)
+                         (every (op (scan _ line)) scanners))
+                (:when print-filenames?
+                  (format t "~/tty:color~/~a~/tty:color~/: "
+                          :bold
+                          (uiop:native-namestring file)
+                          nil))
+                (format t "~a~%" line)))
           (error (e)
             (format *error-output* "~a" e)))))))

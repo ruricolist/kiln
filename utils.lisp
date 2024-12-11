@@ -18,13 +18,10 @@
 (in-readtable :interpol-syntax)
 
 (defun interpolate-escapes (string)
-  (let ((interpol:*inner-delimiters* nil)
-        (*readtable*
-          (find-readtable :interpol-syntax))
-        (*read-eval* nil))
+  (let ((interpol:*inner-delimiters* nil))
     (assure string
-            (with-input-from-string (in (string+ "#?\"" string #\"))
-              (read in)))))
+      (with-input-from-string (in (string+ #\" string #\"))
+        (interpol:interpol-reader in nil nil :recursive-p nil)))))
 
 (defun invoke-argv (argv)
   "Invoke another script."

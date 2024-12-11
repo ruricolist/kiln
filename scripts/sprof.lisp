@@ -8,6 +8,7 @@
   #+sbcl (:import-from :sb-sprof)
   (:documentation "Invoke Kiln command with profiling"))
 (in-package :kiln/scripts/sprof)
+
 (def options
   (list
    (cli:make-option
@@ -49,7 +50,21 @@
     :long-name "sample-interval"
     :initial-value (princ-to-string sb-sprof:*sample-interval*)
     :key :sample-interval
-    :description "Sample interval")))
+    :description "Sample interval")
+   (cli:make-option
+    :choice
+    :long-name "sort-by"
+    :initial-value "samples"
+    :items '("samples" "cumulative-samples")
+    :key :sort-by
+    :description "Method for sorting the flat report")
+   (cli:make-option
+    :choice
+    :long-name "sort-order"
+    :initial-value "descending"
+    :items '("descending" "ascending")
+    :key :sort-order
+    :description "Order for sorting the flat report")))
 
 (def command
   (cli:make-command
@@ -63,12 +78,19 @@
          (threads (if (cli:getopt opts :all-threads)
                       (list (bt:current-thread))
                       :all))
-         (mode (make-keyword (string-upcase (cli:getopt opts :mode)))))
+         (mode (make-keyword (string-upcase (cli:getopt opts :mode))))
+         (sort-by (make-keyword (string-upcase (cli:getopt opts :sort-by))))
+         (sort-order (make-keyword (string-upcase (cli:getopt opts :sort-order)))))
     (sb-sprof:start-profiling
      :mode mode
      :threads threads
      :max-samples (cli:getopt opts :max-samples)
      :sample-interval (parse-float (cli:getopt opts :sample-interval)))
-    (invoke-argv args)
-    (sb-sprof:stop-profiling)
-    (sb-sprof:report :type report)))
+    (unwind-protect
+         (invoke-argv args)
+      (progn
+        (sb-sprof:stop-profiling)
+        (sb-sprof:report
+         :type report
+         :sort-by sort-by
+         :sort-order sort-order)))))

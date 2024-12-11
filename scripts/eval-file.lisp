@@ -4,7 +4,7 @@
 (in-package :kiln/scripts/eval-file)
 
 (defun main (args)
-  (let ((*package* (find-package :cl-user)))
+  (with-standard-io-syntax
     (dolist (file args)
       (unless (uiop:file-exists-p file)
         (error "No such file as ~a" file))

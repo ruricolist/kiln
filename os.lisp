@@ -9,6 +9,8 @@
   (:import-from :kiln/dispatch :exec :exit)
   (:import-from :kiln/flags :dbg)
   (:import-from :uiop :getenv :getenvp :hostname)
+  ;; TODO Remove when Quicklisp updates
+  (:shadow :parse-cmd-dsl)
   (:export
    :cd
    :exec

@@ -8,8 +8,6 @@
   (:import-from :kiln/flags :dbg)
   (:local-nicknames
    (:interpol :cl-interpol))
-  ;; TODO Remove when Quicklisp updates
-  (:shadow :parse-cmd-dsl)
   (:export
    :fields
    :cd

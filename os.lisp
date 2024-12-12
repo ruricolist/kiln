@@ -89,7 +89,9 @@ that `arg0' is set automatically."
              kwargs))
     (exec-no-dsl command :unwind unwind)))
 
-(defun exit (&optional (code 0))
+(defun exit (&key (code 0) (unwind t))
   "Exit with code CODE."
   (check-type code integer)
-  (throw 'exit code))
+  (if unwind
+      (throw 'exit code)
+      (uiop:quit code)))

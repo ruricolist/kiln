@@ -19,7 +19,7 @@
                     (return))
                   (let ((values (multiple-value-list (eval input))))
                     (dolist (value values)
-                      (print value)
+                      (format t "~s" value)
                       (finish-output)))))))))
 
 (defun main (args)

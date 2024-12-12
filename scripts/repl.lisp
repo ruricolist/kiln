@@ -7,7 +7,7 @@
 (defun repl ()
   "Launch a simple REPL."
   ;; TODO More sophisticated?
-  (format *error-output* "Write ~s to quit" :quit)
+  (format *error-output* "Write ~s or send EOF to quit" :quit)
   (with-standard-io-syntax
     (let ((*print-circle* t)
           (uiop:*lisp-interaction* t))

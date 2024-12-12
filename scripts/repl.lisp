@@ -19,7 +19,8 @@
                     (return))
                   (let ((values (multiple-value-list (eval input))))
                     (dolist (value values)
-                      (print value)))))))))
+                      (print value)
+                      (finish-output)))))))))
 
 (defun main (args)
   (declare (ignore args))

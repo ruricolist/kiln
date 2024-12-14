@@ -3,6 +3,7 @@
   (:use
    :cl
    :alexandria
+   :cmd
    :serapeum)
   (:import-from :cffi)
   (:import-from :cmd)
@@ -19,12 +20,17 @@
    :getenvp
    :getpid
    :hostname
+   :os-linux-p
    :setpgrp))
 (in-package :kiln/os)
 
 #.(if (uiop:os-unix-p)
       '(cffi:defcfun "setpgrp" :int)
       '(defun setpgrp ()))
+
+(defun os-linux-p ()
+  (and (uiop:os-unix-p)
+       (search "linux" ($cmd "uname") :test #'char-equal)))
 
 (setf (documentation #'setpgrp 'function)
       "Make this process the leader of a new process group.")

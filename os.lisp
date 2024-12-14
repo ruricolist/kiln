@@ -17,6 +17,7 @@
    :exit
    :getenv
    :getenvp
+   :getpid
    :hostname
    :setpgrp))
 (in-package :kiln/os)
@@ -97,3 +98,21 @@ that `arg0' is set automatically."
   (if unwind
       (throw 'exit code)
       (uiop:quit code)))
+
+(defun getpid ()
+  ;; Adapted from the sources of Sly. Should there be a trivial-getpid
+  ;; library?
+  #+ccl (ccl::getpid)
+  #+sbcl (sb-posix:getpid)
+  #+ecl (ext:getpid)
+  #+clisp (os:process-id)
+  #+cmucl (unix:unix-getpid)
+  #+abcl (ext:get-pid)
+  #+allegro (excl.osi:getpid)
+  #+(and lispworks win32) (win32:get-current-process-id)
+  #+(and lispworks (not win32))
+  (system::getpid)
+  #+mkcl (mkcl:getpid)
+  #+scl (unix:unix-getpid)
+  #+clasp (si:getpid)
+  #+cormanlisp ccl:*current-process-id*)

@@ -14,7 +14,11 @@
         (lambda (system &rest args)
           (apply fn system :silent silent args)))
       (if (not silent)
-          #'asdf:load-system
+          (lambda (system &rest args)
+            (multiple-value-call #'asdf:load-system
+              system
+              (values-list args)
+              :verbose t))
           (lambda (system &rest args)
             (let ((*standard-output* (make-broadcast-stream))
                   (*error-output* (make-broadcast-stream)))

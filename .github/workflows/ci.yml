@@ -8,12 +8,13 @@ env:
 
 jobs:
   test_ubuntu:
-    name: ${{ matrix.lisp }} on ${{ matrix.os }}
+    name: ${{ matrix.lisp }} on ${{ matrix.os }} with POIU=${{ matrix.poiu }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         lisp: [sbcl-bin]
         os: [ubuntu-latest]
+        poiu: ["", "1"]
 
     steps:
       - uses: actions/checkout@v1
@@ -35,8 +36,10 @@ jobs:
       - name: Build Kiln
         run: |
           export PATH=$PATH:$HOME/.local/bin
+          test -n "{{ matrix.poiu }}" && \
+          git clone --depth=1 https://github.com/fare/poiu.git ~/common-lisp/poiu
           mkdir -p ~/.local/bin
-          make && make install
+          KILN_POIU=1 make && make install
       - name: Test Kiln
         run: |
           export CL_SOURCE_REGISTRY="$(pwd):"

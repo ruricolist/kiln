@@ -44,7 +44,7 @@
           (handler-case
               (progn
                 (sb-ext:unlock-package :sb-sys)
-                (let ((key (intern "DEFAULT_INTERRUPT" :sb-sys)))
+                (let ((key (intern "DEFAULT-INTERRUPT" :sb-sys)))
                   (unless (fboundp key)
                     (export key :sb-sys)
                     (eval

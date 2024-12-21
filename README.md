@@ -132,7 +132,8 @@ Kiln makes scripting practical in two ways: (aggressively optimized) hot-reloadi
 2. Kiln makes it trivial to dump a new image that bakes in *all* of your scripts and their dependencies, which can then be invoked either as subcommands (`kiln myscript`) or in multicall mode (`myscript` or `kiln-myscript` as a symlink to `kiln`).
 
 ``` shell
-# Dump a new image containing all shebang scripts on the system path, and all package scripts on the Kiln path.
+# Dump a new image containing all shebang scripts on the system path
+# and all package scripts on the Kiln path.
 kiln rebuild
 ```
 

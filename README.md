@@ -81,33 +81,27 @@ Kiln supports two kinds of scripts: shebang scripts and package scripts.
 
 Both shebang scripts and package scripts *must* define a `main` function. For shebang scripts, this should be `kiln-user:main`. For package scripts, this should just be a `main` function in the script’s package.
 
-### Reloading, two ways
-
-Kiln makes scripting practical in two ways: (aggressively optimized) hot-reloading and easy image dumping.
-
-1. It uses a whole bag of tricks to make hot-reloading of edited scripts (pacakage scripts or shebang scripts) as fast as possible.
-2. Kiln makes it trivial (`kiln rebuild`) to dump a new image that bakes in *all* of your scripts and their dependencies, which can then be invoked either as subcommands (`kiln myscript`) or in multicall mode (`myscript` or `kiln-myscript` as a symlink to `kiln`).
-
-Hot reloading is much faster than you would expect, as Kiln uses ASDF and
-OS tricks to reuse preloaded dependencies and control compilation to
-prioritize compilation speed.
-
-## Writing shebang scripts
+#### Writing shebang scripts
 
 Writing shebang scripts is just like writing any script: start a file with `#!/usr/bin/env kiln`, make it executable, and put it in your path. (Or leave out the shebang and invoke it as `kiln ./myscript.lisp`.)
 
-One difference from some scripting languages is that you do need to define a `main` function. Do this by defining `kiln-user:main`:
-
-``` lisp
+``` shell
+$ cat << "EOF" > hello-world
 #!/usr/bin/env kiln
 (defun kiln-user:main (args)
-  (print "Hello, world!"))
+  (format t "Hello, world!~%"))
+EOF
+$ chmod +x hello-world
+$ ./hello-world
+Hello, world!
 ```
+
+One difference from some scripting languages is that you do need to define a `main` function. (For shebang scripts, it has to be defined specifically in the `kiln-user` package.)
 
 The main function takes a single argument, the list of command-line
 arguments.
 
-## Writing package scripts
+#### Writing package scripts
 
 “Package scripts” are subsytems of package-inferred systems; their packages must define a `main` function.
 
@@ -129,6 +123,39 @@ For example, if you set `KILN_PATH_SYSTEMS` to `my-fancy-scripts:scripts-i-found
 1. `my-fancy-scripts/my-script`
 1. `scripts-i-found-somewhere/my-script`
 1. `kiln/scripts/my-script` (built-in scripts)
+
+### Reloading, two ways
+
+Kiln makes scripting practical in two ways: (aggressively optimized) hot-reloading and easy image dumping.
+
+1. It uses a whole bag of tricks to make hot-reloading of edited scripts (pacakage scripts or shebang scripts) as fast as possible.
+2. Kiln makes it trivial to dump a new image that bakes in *all* of your scripts and their dependencies, which can then be invoked either as subcommands (`kiln myscript`) or in multicall mode (`myscript` or `kiln-myscript` as a symlink to `kiln`).
+
+``` shell
+# Dump a new image containing all shebang scripts on the system path, and all package scripts on the Kiln path.
+kiln rebuild
+```
+
+It *may* be possible to rebuild in parallel with [POIU][] (whether POIU works at all is very sensitive to the details of your environment):
+
+``` shell
+# Very experimental: use POIU to build the image in parallel.
+kiln rebuild --poiu
+```
+
+Hot reloading is much faster than you would expect, as Kiln uses ASDF and
+OS tricks to reuse preloaded dependencies and control compilation to
+prioritize compilation speed.
+
+### Packaging scripts as applications
+
+If you have a script sufficiently mature (or large) that you want you deliver it as a separate application, you can ask Kiln to build an image that just contains one system:
+
+``` shell
+kiln rebuild --target-file executable --target-system my-project
+```
+
+This will result in Kiln loading `my-project` and creating an executable with `my-project:main` as its entry point. The resulting executable will not have any of Kiln’s support for scripting, but it will still use the [Kiln environment](#kiln-environment) settings.
 
 ## Kiln environment
 
@@ -153,3 +180,4 @@ When a Kiln script runs (through Kiln), the following are always true:
 [clon]: https://github.com/didierverna/clon
 [command-line-arguments]: https://github.com/fare/command-line-arguments
 [unix-opts]: https://github.com/libre-man/unix-opts
+[POIU]: https://gitlab.common-lisp.net/qitab/poiu

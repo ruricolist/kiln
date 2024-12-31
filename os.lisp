@@ -9,19 +9,31 @@
   (:import-from :cmd)
   (:import-from :kiln/dispatch :exec :exit)
   (:import-from :kiln/flags :dbg)
-  (:import-from :uiop :getenv :getenvp :hostname)
-  ;; TODO Remove when Quicklisp updates
-  (:shadow :parse-cmd-dsl)
+  (:import-from
+   :uiop
+   :file-exists-p
+   :directory-exists-p
+   :getenv
+   :getenvp
+   :hostname)
+  (:shadow
+   ;; TODO Remove when Quicklisp updates
+   :parse-cmd-dsl)
   (:export
-   :cd
+   :chdir
+   :directory-exists-p
    :exec
    :exit
+   :file-exists-p
+   :getcwd
    :getenv
    :getenvp
    :getpid
    :hostname
    :os-linux-p
-   :setpgrp))
+   :setpgrp
+   :with-chdir
+   :with-save-directory))
 (in-package :kiln/os)
 
 #.(if (uiop:os-unix-p)
@@ -35,12 +47,35 @@
 (setf (documentation #'setpgrp 'function)
       "Make this process the leader of a new process group.")
 
-(defun cd (&optional (dir (user-homedir-pathname)))
+(defun chdir (&optional (dir (user-homedir-pathname)))
   "Set the operating system directory and sync
 `*default-pathname-defaults*' to it."
   (let ((dir (cmd::resolve-dir dir)))
     (uiop:chdir dir)
     (setf *default-pathname-defaults* dir)))
+
+(defun getcwd ()
+  (uiop:getcwd))
+
+(defun (setf getcwd) (dir)
+  (chdir dir))
+
+(defun call/save-directory (fn)
+  (let ((start-dir (uiop:getcwd)))
+    (unwind-protect
+         (funcall fn)
+      (chdir start-dir))))
+
+(defmacro with-save-directory ((&key) &body body)
+  "Run BODY, restoring the current directory afterwards."
+  (with-thunk (body)
+    `(call/save-directory ,body)))
+
+(defmacro with-chdir ((dir) &body body)
+  "Set current directory to DIR, run BODY, restore current directory."
+  `(with-save-directory ()
+     (chdir ,dir)
+     ,@body))
 
 (cffi:defcfun (%execv "execv") :int
   (path :string)

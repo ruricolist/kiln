@@ -5,6 +5,8 @@
    (:cli :clingon))
   (:import-from :kiln/utils
    :invoke-argv)
+  (:import-from :trivia
+   :ematch)
   #+sbcl (:import-from :sb-sprof)
   (:documentation "Invoke Kiln command with profiling"))
 (in-package :kiln/scripts/sprof)
@@ -44,6 +46,12 @@
     :initial-value sb-sprof:*max-samples*
     :key :max-samples
     :description "Max samples")
+   (cli:make-option
+    :string
+    :long-name "output"
+    :short-name #\o
+    :key :output
+    :description "Output file")
    ;; TODO Float class.
    (cli:make-option
     :string
@@ -74,23 +82,39 @@
 (defun main (args)
   (let* ((opts (cli:parse-command-line command args))
          (args (cli:command-arguments opts))
-         (report (make-keyword (string-upcase (cli:getopt opts :report))))
-         (threads (if (cli:getopt opts :all-threads)
-                      (list (bt:current-thread))
-                      :all))
+         (max-samples (cli:getopt opts :max-samples))
          (mode (make-keyword (string-upcase (cli:getopt opts :mode))))
+         (report (make-keyword (string-upcase (cli:getopt opts :report))))
+         (sample-interval (parse-float (cli:getopt opts :sample-interval)))
          (sort-by (make-keyword (string-upcase (cli:getopt opts :sort-by))))
-         (sort-order (make-keyword (string-upcase (cli:getopt opts :sort-order)))))
-    (sb-sprof:start-profiling
-     :mode mode
-     :threads threads
-     :max-samples (cli:getopt opts :max-samples)
-     :sample-interval (parse-float (cli:getopt opts :sample-interval)))
-    (unwind-protect
-         (invoke-argv args)
-      (progn
-        (sb-sprof:stop-profiling)
-        (sb-sprof:report
-         :type report
-         :sort-by sort-by
-         :sort-order sort-order)))))
+         (sort-order (make-keyword (string-upcase (cli:getopt opts :sort-order))))
+         (threads
+           (if (cli:getopt opts :all-threads)
+               (list (bt:current-thread))
+               :all)))
+    (labels ((report-1 (stream)
+               (multiple-value-call #'sb-sprof:report
+                 :type report
+                 :sort-by sort-by
+                 :sort-order sort-order
+                 (when stream
+                   (values :stream stream))))
+             (report ()
+               (ematch (cli:getopt opts :output)
+                 ((or () "-")
+                  (report-1 *standard-output*))
+                 ((and string (type string))
+                  (with-open-file (out string
+                                       :direction :output
+                                       :if-exists :rename)
+                    (report-1 out))))))
+      (sb-sprof:start-profiling
+       :mode mode
+       :threads threads
+       :max-samples max-samples
+       :sample-interval sample-interval)
+      (unwind-protect
+           (invoke-argv args)
+        (progn
+          (sb-sprof:stop-profiling)
+          (report))))))

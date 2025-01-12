@@ -90,8 +90,8 @@
          (sort-order (make-keyword (string-upcase (cli:getopt opts :sort-order))))
          (threads
            (if (cli:getopt opts :all-threads)
-               (list (bt:current-thread))
-               :all)))
+               :all
+               (list (bt:current-thread)))))
     (labels ((report-1 (stream)
                (multiple-value-call #'sb-sprof:report
                  :type report

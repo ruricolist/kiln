@@ -37,7 +37,7 @@
     :choice
     :long-name "mode"
     :initial-value "cpu"
-    :items '("cpu" "alloc" "mode")
+    :items '("cpu" "alloc" "time")
     :key :mode
     :description "Profiling mode")
    (cli:make-option

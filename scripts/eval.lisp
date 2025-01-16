@@ -11,5 +11,6 @@
       (with-input-from-string (in arg)
         (loop for form = (read in nil *eof*)
               until (eq form *eof*)
-              do (format *error-output* "~s~%=> " form)
-                 (format t "~s~%" (eval form)))))))
+              do (format *error-output* "~s~%" form)
+                 (let ((result (eval form)))
+                   (format t "=> ~s~%" result)))))))

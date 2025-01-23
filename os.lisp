@@ -13,8 +13,6 @@
    :uiop
    :file-exists-p
    :directory-exists-p
-   :getenv
-   :getenvp
    :hostname)
   (:shadow
    ;; TODO Remove when Quicklisp updates
@@ -59,6 +57,21 @@
 
 (defun (setf getcwd) (dir)
   (chdir dir))
+
+(def env-lock (bt:make-lock))
+
+(defun getenv (name)
+  (bt:with-lock-held (env-lock)
+    (uiop:getenv name)))
+
+(defun getenvp (name)
+  (let ((name (getenv name)))
+    (and (not (emptyp name))
+         name)))
+
+(defun (setf getenv) (value name)
+  (bt:with-lock-held (env-lock)
+    (setf (uiop:getenv name) value)))
 
 (defun call/save-directory (fn)
   (let ((start-dir (uiop:getcwd)))

@@ -1,27 +1,28 @@
 (defpackage :kiln/flags
   (:use :cl :serapeum :alexandria)
+  (:import-from :kiln/os :getenv :getenvp)
   (:export
-   :+kiln-debug+
-   :+kiln-heap-size+
-   :+kiln-lisp+
-   :+kiln-no-print-version+
-   :+kiln-stack-size+
-   :+kiln-path-systems+
-   :+kiln-poiu+
-   :+kiln-quicklisp+
-   :+kiln-target-file+
-   :+kiln-target-package+
-   :+kiln-target-system+
-   :+kiln-tolerant+
-   :*flags*
-   :dbg?
-   :dbg
-   :set-flags
-   :portable?
-   :repl-on-error?
-   :exit-code
-   :backtrace?
-   :with-debug-output))
+    :+kiln-debug+
+    :+kiln-heap-size+
+    :+kiln-lisp+
+    :+kiln-no-print-version+
+    :+kiln-stack-size+
+    :+kiln-path-systems+
+    :+kiln-poiu+
+    :+kiln-quicklisp+
+    :+kiln-target-file+
+    :+kiln-target-package+
+    :+kiln-target-system+
+    :+kiln-tolerant+
+    :*flags*
+    :dbg?
+    :dbg
+    :set-flags
+    :portable?
+    :repl-on-error?
+    :exit-code
+    :backtrace?
+    :with-debug-output))
 (in-package :kiln/flags)
 
 (defvar *flags* nil)
@@ -51,7 +52,7 @@
                             (mapcar (op (drop-prefix "--" _))
                                     value))))
   (when (memq :debug *flags*)
-    (setf (uiop:getenv "KILN_DEBUG") "1"))
+    (setf (getenv "KILN_DEBUG") "1"))
   *flags*)
 
 (defun portable? ()
@@ -59,7 +60,7 @@
 
 (defun dbg? ()
   (or (memq :debug *flags*)
-      (uiop:getenvp "KILN_DEBUG")))
+      (getenvp "KILN_DEBUG")))
 
 (defun call/debug-output (fn)
   (let ((*standard-output*

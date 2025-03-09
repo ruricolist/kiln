@@ -5,6 +5,7 @@
    :+kiln-heap-size+
    :+kiln-lisp+
    :+kiln-no-print-version+
+   :+kiln-nursery-max-bytes+
    :+kiln-stack-size+
    :+kiln-path-systems+
    :+kiln-poiu+
@@ -32,6 +33,7 @@
 (def +kiln-heap-size+ "KILN_HEAP_SIZE")
 (def +kiln-lisp+ "KILN_LISP")
 (def +kiln-no-print-version+ "KILN_NO_PRINT_VERSION")
+(def +kiln-nursery-max-bytes+ "KILN_NURSERY_MAX_BYTES")
 (def +kiln-stack-size+ "KILN_STACK_SIZE")
 (def +kiln-path-systems+ "KILN_PATH_SYSTEMS")
 (def +kiln-poiu+ "KILN_POIU")

@@ -55,6 +55,13 @@
     :env-vars (list +kiln-stack-size+)
     :key :stack-size)
    (cli:make-option
+    :integer
+    :long-name "nursery-size-limit"
+    :description "Nursery size limit (B)"
+    :initial-value nil
+    :env-vars (list +kiln-nursery-max-bytes+)
+    :key :nursery-max-size)
+   (cli:make-option
     :flag
     :description "Use Quicklisp"
     :long-name "quicklisp"
@@ -108,6 +115,9 @@
     (when-let (stack-size (cli:getopt opts :stack-size))
       (setf (getenv +kiln-stack-size+)
             (princ-to-string stack-size)))
+    (when-let (nursery-size-limit (cli:getopt opts :nursery-size-limit))
+      (setf (getenv +kiln-nursery-max-bytes+)
+            (princ-to-string nursery-size-limit)))
     (when (cli:getopt opts :quicklisp)
       (setf (getenv +kiln-quicklisp+)
             (if (find-package :ql)

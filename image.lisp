@@ -10,6 +10,7 @@
   (:import-from
     :kiln/flags
     :dbg
+    :+kiln-nursery-max-bytes+
     :+kiln-target-package+
     :+kiln-target-system+)
   (:import-from :kiln/script-cache :populate-script-cache)
@@ -71,6 +72,12 @@
       (and *target-system*
            (string-invert-case *target-system*))))
 
+(defparameter *kiln-nursery-max-bytes*
+  (if-let (env-value (uiop:getenvp +kiln-nursery-max-bytes+))
+    (assure (integer 0)
+      (parse-integer env-value))
+    (expt 2 30)))
+
 (defun kiln-before-dump-image ()
   (setf uiop/image::*lisp-interaction* nil)
   #+sbcl (setf sb-ext:*derive-function-types* t)
@@ -114,11 +121,18 @@
 (defvar *sbcl-home* (sb-int:sbcl-homedir-pathname))
 
 (defun kiln-after-restore-image ()
-  #+sbcl (sb-ext:disable-debugger)
-  ;; TODO Would it be better to preload them all?
-  (unless *target-system*
-    #+sbcl (setf sb-sys::*sbcl-homedir-pathname* *sbcl-home*)
-    #+sbcl (setf sb-ext:*derive-function-types* nil))
+  #+sbcl
+  (progn
+    (sb-ext:disable-debugger)
+    (unless *target-system*
+      ;; TODO Would it be better to preload them all?
+      (setf sb-sys::*sbcl-homedir-pathname* *sbcl-home*)
+      (setf sb-ext:*derive-function-types* nil))
+    (unless (zerop *kiln-nursery-max-bytes*)
+      (setf (sb-ext:bytes-consed-between-gcs)
+            (min (sb-ext:bytes-consed-between-gcs)
+                 *kiln-nursery-max-bytes*))))
+
   (setf uiop/image::*lisp-interaction* nil)
   (setpgrp)
   (reload-all-foreign-libraries))

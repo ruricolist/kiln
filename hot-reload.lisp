@@ -210,6 +210,24 @@ package scripts."
       (load fasl))
     fasl))
 
+;;; Copy-paste from UIOP, except we ignore options we don't recognize.
+(defun package-dependencies (defpackage-form)
+  "Return a list of packages depended on by the package
+defined in DEFPACKAGE-FORM.  A package is depended upon if
+the DEFPACKAGE-FORM uses it or imports a symbol from it."
+  (nub
+   (with-collectors (dep)
+     (loop :for (option . arguments) :in (cddr defpackage-form) :do
+       (case option
+         ((:use :mix :reexport :use-reexport :mix-reexport :implement)
+          (dolist (p arguments) (dep (string p))))
+         ((:import-from :shadowing-import-from)
+          (dep (string (first arguments))))
+         #+package-local-nicknames
+         ((:local-nicknames)
+          (loop :for (nil actual-package-name) :in arguments :do
+            (dep (string actual-package-name)))))))))
+
 (defun hot-reload (system package path)
   "Hot-reload package inferred system SYSTEM.
 First, try to compile and load just SYSTEM's file. This should work
@@ -222,19 +240,23 @@ compilation speed. Also, override ASDF internals so files that already
 exist are just symlinked from the old cache."
   (declare (ignorable package))
   (set-compiler-policy)
-  (nlet retry ((count 1))
+  (nlet retry ()
     (handler-bind (#+sbcl
                    (sb-int:package-at-variance-error
                      (lambda (e)
                        (flags:dbg "Delete package due to package variance")
                        (delete-package (package-error-package e))
-                       (retry (1- count))))
-                   (package-error
-                     (lambda (e)
-                       (flags:dbg "Package error: ~a" e)
-                       (when (and (> count 0)
-                                  (not (find-package (package-error-package e))))
-                         (flags:dbg "Loading system due to package error")
-                         (fast-load-system system)
-                         (retry (1- count))))))
+                       (retry)))) )
+    (let ((*macroexpand-hook*
+            (lambda (expander form env)
+              (if (and (listp form)
+                       (member (car form) '(cl:defpackage uiop:define-package)))
+                  (if-let ((deps (package-dependencies form)))
+                    `(progn
+                       (eval-when (:compile-toplevel :load-toplevel :execute)
+                         (dolist (p ',(remove-if #'find-package deps))
+                           (fast-load-system p)))
+                       ,(funcall expander form env))
+                    (funcall expander form env))
+                  (funcall expander form env)))))
       (fast-load-script path))))

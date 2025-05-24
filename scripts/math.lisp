@@ -44,7 +44,19 @@
                (string+ "#2{" string "}#"))))))
     (unless (cli:getopt opts :ratiop)
       (dec:enable-decimal-printing-for-ratios))
-    (format t "~a~%" result)))
+    (let ((*print-pretty* t)
+          (output (format nil "~a~%" result)))
+      (eif (typep result 'ratio)
+          (eif (search "/" output)
+              (eif (cli:getopt opts :ratiop)
+                  (write-string output)
+                  (progn
+                    ;; Coerce to a float.
+                    (format *error-output* "≅")
+                    (force-output *error-output*)
+                    (format t "~a~%" (coerce result 'double-float))))
+              (write-string output))
+          (write-string output)))))
 
 (defsubst log1p (x) (fp:log1+ x))
 (defsubst log1m (x) (fp:log1- x))

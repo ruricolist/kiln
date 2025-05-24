@@ -6,6 +6,7 @@
   (:local-nicknames
    (:c :with-c-syntax)
    (:cli :clingon)
+   (:dec :wu-decimal)
    (:fp :floating-point-contractions))
   (:documentation "Do math with C-style syntax but a Lisp numeric tower")
   (:export :main))
@@ -15,7 +16,7 @@
   (list
    (cli:make-option
     :flag
-    :description "Print ratios"
+    :description "Print ratios as ratios"
     :short-name #\R
     :long-name "print-ratios"
     :key :ratiop)))
@@ -40,13 +41,9 @@
              (eval
               (read-from-string
                ;; 2 means to split C operators inside Lisp symbols.
-               (string+ "#2{" string "}#")))))
-         (result
-           (if (typep result 'ratio)
-               (if (cli:getopt opts :ratiop)
-                   result
-                   (coerce result *read-default-float-format*))
-               result)))
+               (string+ "#2{" string "}#"))))))
+    (unless (cli:getopt opts :ratiop)
+      (dec:enable-decimal-printing-for-ratios))
     (format t "~a~%" result)))
 
 (defsubst log1p (x) (fp:log1+ x))

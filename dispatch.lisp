@@ -313,6 +313,8 @@ handlers to give the desired behavior for scripting."
                      (constantly (funcall *entry-point*))))
                 (quit (exit-code))))
           (user-abort (e)
+            (when (backtrace?)
+              (print-error-and-backtrace e))
             ;; Resignal so the process finally gets killed by a
             ;; signal and WIFSIGNALED can detect it.
             #+sbcl

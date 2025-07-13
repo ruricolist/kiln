@@ -143,9 +143,11 @@
   ()
   (:report (lambda (c s)
              (declare (ignore c))
-             (format s "No arguments. Try one of: ")
+             (format s "No arguments.~%Try one of: ")
              (format s "~{~(~a~)~^ ~}~%"
-                     (list-loaded-scripts)))))
+                     (sort
+                      (copy-list (list-loaded-scripts))
+                      #'string<)))))
 
 (defgeneric print-error (error stream)
   (:documentation "Print ERROR to STREAM")

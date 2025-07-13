@@ -18,10 +18,9 @@
    :colour
    :colorize
    :colourise
-   :effect
    :rgb
-   :stream-tty?
-   :tty?))
+   :stream-tty-p
+   :ttyp))
 (in-package :kiln/tty)
 (in-readtable :interpol-syntax)
 
@@ -31,63 +30,59 @@
 (defvar *color* :auto)
 (declaim (type color-policy *color*))
 
-(-> stream-tty? (stream (member :input :output))
-    (values boolean boolean))
-(defun stream-tty? (stream direction)
-  "Is STREAM a tty?
+(-> stream-tty-p (stream (member :input :output))
+    (values (or null stream) boolean))
+(defun stream-tty-p (stream direction)
+  "Is STREAM a ttyp
 DIRECTION should be :input or :output.
 
-Returns two booleans: whether the stream was a TTY, and a second value
-for confidence (T if sure, NIL if unsure)."
+Returns two booleans: the underlying TTY stream (possibly but not
+necessarily the same as STREAM), and a second value for confidence (T
+if sure, NIL if unsure)."
   (declare (stream stream)
            ((member :input :output) direction))
   (typecase stream
     (synonym-stream
-     (stream-tty?
+     (stream-tty-p
       (symbol-value (synonym-stream-symbol stream))
       direction))
     (two-way-stream
-     (ecase direction
-       (:input
-         (stream-tty?
-          (two-way-stream-input-stream stream)
-          direction))
-       (:output
-         (stream-tty?
-          (two-way-stream-output-stream stream)
-          direction))))
+     (stream-tty-p
+      (ecase direction
+        (:input
+          (two-way-stream-input-stream stream))
+        (:output
+          (two-way-stream-output-stream stream)))
+      direction))
     (broadcast-stream
      (let ((streams (broadcast-stream-streams stream)))
        (match streams
          (() (values nil t))
          ((list stream)
-          (stream-tty? stream direction))
-         ((list* stream more-streams)
-          (multiple-value-bind (initial-tty? initial-confidence?)
-              (stream-tty? stream direction)
-            (mvfold (lambda (tty? sure stream)
-                      (multiple-value-bind (stream-tty? sure-of-stream?)
-                          (stream-tty? stream direction)
-                        (values (and tty? stream-tty?)
-                                (and sure sure-of-stream?))))
-                    more-streams
-                    initial-tty?
-                    initial-confidence?))))))
+          (stream-tty-p stream direction))
+         ((list* _ _)
+          (dolist (stream streams)
+            (multiple-value-bind (stream sure?)
+                (stream-tty-p stream direction)
+              (return (values stream sure?))))
+          (values nil nil)))))
     (otherwise
      #+ccl
      (if-let (fd (ccl::stream-device stream direction))
-       (values (= 1 (ccl::isatty fd)) t)
+       (values (and (= 1 (ccl::isatty fd)) stream) t)
        (values nil nil))
      #+sbcl
      (if (typep stream 'sb-sys:fd-stream)
          (values
-          (= 1 (sb-unix:unix-isatty (sb-sys:fd-stream-fd stream)))
+          (and
+           (= 1 (sb-unix:unix-isatty (sb-sys:fd-stream-fd stream)))
+           stream)
           t)
          (values nil nil))
      #-(or ccl sbcl)
      (values nil nil))))
 
-(defun tty? ()
+(defun ttyp ()
   "Return T if there is a controlling TTY."
   (handler-case
       (progn
@@ -96,15 +91,16 @@ for confidence (T if sure, NIL if unsure)."
     (file-error () nil)))
 
 (defun clear-line (stream &key return)
-  (when (stream-tty? stream :output)
+  (when-let (stream (stream-tty-p stream :output))
     (write-string #?"\x1b[2K" stream)
     (when return
       (write-char #\Return stream))
     (force-output stream)))
 
 (defun beep (&key (stream *standard-output*))
-  (write-char #\Bel stream)
-  (finish-output stream))
+  (when-let (stream (stream-tty-p stream :output))
+    (write-char #\Bel stream)
+    (finish-output stream)))
 
 (defconstructor rgb
   (red octet)
@@ -215,7 +211,7 @@ bind `kiln/tty:*color*' to `:always'."
             (:always t)
             (:auto
              (or colon?
-                 (stream-tty? stream :output))))
+                 (stream-tty-p stream :output))))
       (format stream #?"\x1b[~am" code))))
 
 (defsubst colour (stream color &optional color? at-sign)

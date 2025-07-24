@@ -99,13 +99,14 @@
            (resolve-executable executable))))
     (execv executable arglist)))
 
-(defun exec-no-dsl (command &key (unwind t))
-  (dbg "Replacing current process with ~{~a~^ ~}"
-       command)
+(defun exec-no-dsl (command &key (unwind t) (log t))
+  (when log
+    (dbg "Replacing current process with ~{~a~^ ~}"
+         command))
   (if unwind
       (throw 'exec
         (lambda ()
-          (exec-no-dsl command :unwind nil)))
+          (exec-no-dsl command :unwind nil :log nil)))
       (execvp (car command) command)))
 
 ;;; TODO Remove when Quicklisp updates.

@@ -7,7 +7,6 @@
 (setf uiop/image::*lisp-interaction* nil)
 #+sb-core-compression
 (defmethod asdf:perform ((o asdf:image-op) (c asdf:system))
-  ;; Force max compression.
   (uiop:dump-image (asdf:output-file o c)
                    :executable t
                    ;; Core compression isn't really worth the

@@ -30,6 +30,9 @@
 (defvar *color* :auto)
 (declaim (type color-policy *color*))
 
+(defun no-color-p ()
+  (uiop:getenvp "NO_COLOR"))
+
 (-> stream-tty-p (stream (member :input :output))
     (values (or null stream) boolean))
 (defun stream-tty-p (stream direction)
@@ -81,6 +84,10 @@ if sure, NIL if unsure)."
          (values nil nil))
      #-(or ccl sbcl)
      (values nil nil))))
+
+(defun want-color-p (stream)
+  (and (not (no-color-p))
+       (stream-tty-p stream :output)))
 
 (defun ttyp ()
   "Return T if there is a controlling TTY."
@@ -190,8 +197,11 @@ control:
       nil)
 
 By default, escapes are only written if STREAM can be determined to be
-a TTY. You can pass non-nil `colon?' to force outputting colors, or
-bind `kiln/tty:*color*' to `:always'."
+a TTY. The `NO_COLOR' environment variable is also respected (see
+`no-color.org').
+
+To force colorized output, pass non-nil `colon?', or bind
+`kiln/tty:*color*' to `:always'."
   (declare (ignore at-sign?)
            (color color))
   (let ((code
@@ -211,7 +221,7 @@ bind `kiln/tty:*color*' to `:always'."
             (:always t)
             (:auto
              (or colon?
-                 (stream-tty-p stream :output))))
+                 (want-color-p stream))))
       (format stream #?"\x1b[~am" code))))
 
 (defsubst colour (stream color &optional color? at-sign)

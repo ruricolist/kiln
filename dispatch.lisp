@@ -224,6 +224,8 @@
     (run-cached-script script-path args)))
 
 (defun dispatch/argv (&aux (args (uiop:command-line-arguments)))
+  "Dispatch to a script based on ARGS.
+Default entry point."
   (let ((executable-name
           (pathname-name
            (uiop:parse-native-namestring

@@ -4,5 +4,5 @@
   (:export :main))
 (in-package :kiln-entry-point-system)
 
-(defun main ()
+(defun main (args)
   (format t "Hello, world~%"))

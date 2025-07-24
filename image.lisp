@@ -97,13 +97,16 @@
                       (error "No target package name in environment"))))
             (load-system *target-system*)
             (mark-all-systems-immutable)
-            (let ((package
-                    (or (find-package package-name)
-                        (error "No such package as ~a" package-name))))
+            (let* ((package
+                     (or (find-package package-name)
+                         (error "No such package as ~a" package-name)))
+                   (main
+                     (or (find-symbol (string 'main) package)
+                         (error "No main function for package ~a"
+                                package-name))))
               (setf *entry-point*
-                    (or (find-symbol (string 'main) package)
-                        (error "No main function for package ~a"
-                               package-name)))))
+                    (lambda ()
+                      (funcall main (uiop:command-line-arguments))))))
           (let* ((subsystems (list-builtin-script-subsystems)))
             (load-all-script-systems :script-systems subsystems)
             ;; Mark systems immutable twice: first anything loaded by the

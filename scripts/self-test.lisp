@@ -233,6 +233,24 @@ This is useful when we need to test the exact output."
       (is (uiop:file-exists-p tmp))
       (is (equal "Hello, world" ($cmd tmp))))))
 
+(5am:test entry-point-other-dir
+  "The executable should be generated relative to the directory where
+rebuild was called."
+  (with-templated-test-system (:name "kiln-entry-point-system"
+                               :path path
+                               :kiln-path nil)
+    (uiop:with-temporary-file (:pathname tmp)
+      (let ((rel-tmp (uiop:enough-pathname tmp uiop:*temporary-directory*)))
+        (assert rel-tmp)
+        (cmd "env -C"
+             uiop:*temporary-directory*
+             *self*
+             "rebuild --target-file"
+             rel-tmp
+             "--target-system kiln-entry-point-system")
+        (is (uiop:file-exists-p tmp))
+        (is (equal "Hello, world" ($cmd tmp)))))))
+
 (defun main (args)
   (destructuring-bind (&optional (test 'test)) args
     (when (stringp test)

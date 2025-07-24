@@ -105,7 +105,9 @@
     (when (cli:getopt opts :target-package)
       (error "Cannot provide --target-package without --target-system"))
     (when-let (target-file (cli:getopt opts :target-file))
-      (setf (getenv +kiln-target-file+) target-file))
+      (setf (getenv +kiln-target-file+)
+            (uiop:native-namestring
+             (path-join *default-pathname-defaults* target-file))))
     (when (or (cli:getopt opts :no-version)
               (cli:getopt opts :target-system))
       (setf (getenv +kiln-no-print-version+) "1"))

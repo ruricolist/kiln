@@ -72,8 +72,13 @@ echo "Saving image" >&2
 ${LISP_CMD} --load bootstrap/build1.lisp
 
 chmod +x "$tmpfile"
-test -n "$("$tmpfile" version)"
+# Check the temp executable built correctly.
+if test -z "${KILN_NO_PRINT_VERSION:-}"; then
+    test -n "$("$tmpfile" version)"
+fi
+# Rename the temp executable to the output executable.
 mv -f "$tmpfile" "$real_target_file"
+# Print the version.
 if test -z "${KILN_NO_PRINT_VERSION:-}"; then
     # real_target_file may be a relative path.
     PATH=$(pwd):$PATH "${real_target_file}" version

@@ -6,8 +6,10 @@
   (:documentation "Perform self-test of Kiln itself"))
 (in-package :kiln/scripts/self-test)
 
-(defvar-unbound *self*
-  "Kiln executable running these tests.")
+(defvar *self* "kiln"
+  "Kiln executable running these tests.
+The default value is for interactive testing. When running as a
+script, it's bound to the running executable.")
 
 (defun kiln-exact-output (&rest argv)
   "Run ARGV with Kiln, but without debug flag.

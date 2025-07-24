@@ -28,9 +28,11 @@
   (defun unload-all-foreign-libraries ()
     (let ((libs (cffi:list-foreign-libraries)))
       (setf lib-names (mapcar #'cffi:foreign-library-name libs))
+      (dbg "Unloading libraries: ~a" lib-names)
       (mapc #'cffi:close-foreign-library libs)))
   (defun reload-all-foreign-libraries ()
     ;; Load in reverse order, since they are "pushed" as they are loaded.
+    (dbg "Reloading libraries: ~a" (reverse lib-names))
     (mapc #'cffi:load-foreign-library (reverse lib-names))))
 
 (defun mark-other-systems-immutable (&key (script-systems (list-all-script-subsystems)))

@@ -29,7 +29,8 @@
         (uiop:symbol-call :ql :register-local-projects)
         (multiple-value-call #'uiop:symbol-call
           :ql :quickload system
-          (if (uiop:getenvp "KILN_DEBUG") (values)
+          (if (uiop:getenvp "KILN_DEBUG")
+              (values :verbose t)
               (values :silent t))))
       (progn
         (format *error-output* "Quicklisp not found~%")

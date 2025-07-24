@@ -12,7 +12,11 @@
                  (find-external-symbol (string 'quickload)
                                        ql)))))
         (lambda (system &rest args)
-          (apply fn system :silent silent args)))
+          (multiple-value-call fn system
+            (if silent
+                (values :silent t)
+                (values :verbose t))
+            (values-list args))))
       (if (not silent)
           (lambda (system &rest args)
             (multiple-value-call #'asdf:load-system

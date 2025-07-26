@@ -242,8 +242,7 @@ rebuild was called."
     (uiop:with-temporary-file (:pathname tmp)
       (let ((rel-tmp (uiop:enough-pathname tmp uiop:*temporary-directory*)))
         (assert rel-tmp)
-        (cmd "env -C"
-             uiop:*temporary-directory*
+        (cmd :in uiop:*temporary-directory*
              *self*
              "rebuild --target-file"
              rel-tmp

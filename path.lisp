@@ -81,7 +81,7 @@
                              :type "lisp")))
            (system-lisp-files
              (remove-if (op (string^= "#." (pathname-name _)))
-                        system-list-files)))
+                        system-lisp-files)))
       (loop for file in system-lisp-files
             for script-name = (pathname-name file)
             for subsystem-name = (string+ system-name "/" script-name)

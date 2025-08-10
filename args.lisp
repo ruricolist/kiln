@@ -7,13 +7,15 @@
 
 ;;; TODO Use types from declarations to parse.
 
+;;; TODO Properly handle suppliedp vars.
+
 (defclass param ()
   ((var :type symbol :initarg :var :reader param-var)))
 
 ;;; Abstract.
 (defclass default-param (param)
   ((default :initarg :default :reader param-default)
-   (suppliedp :type symbol :initarg :suppliedp :reader param-suppliedp)))
+   (suppliedp :type symbol :initarg :suppliedp :reader param-supplied-p)))
 
 (defclass required-param (param)
   ())
@@ -106,7 +108,8 @@
                      (mapcar #'param-var
                              params)))
         (multiple-value-bind (required-args rest)
-            (halves args len)
+            (values (take len args)
+                    (drop len args))
           (values
            (mapcar (op (cons (param-var _) _))
                    params
@@ -148,17 +151,18 @@
                              ((string^= "-" (car args))
                               (error "Unknown short keyword argument: ~a"
                                      (car args)))))
-                        (if (string^= "-" (cadr args))
+                        (if (param-supplied-p param)
                             (progn
                               (push (cons (param-var param)
-                                          nil)
+                                          t)
                                     alist)
                               (parse (cdr args)))
                             (progn
                               (push (cons (param-var param)
                                           (cadr args))
                                     alist)
-                              (parse (cddr args))))))))))))
+                              (parse (cddr args))))))
+                  (values alist args)))))))
 
 (defun parse-rest-argument (args rules)
   (if-let (param (rest-param-p rules))
@@ -200,6 +204,14 @@
     (list (lambda-list-rules x))
     (rules x)))
 
+(defmacro lookup-or-eval (dict key default)
+  (with-unique-names (v vp)
+    `(multiple-value-bind (,v ,vp)
+         (@ ,dict ,key)
+       (if ,vp
+           ,v
+           ,default))))
+
 (defun generate-binding-lookups (lambda-list dict-var)
   (multiple-value-bind
         (required-params
@@ -215,21 +227,49 @@
      (mapcar (op `(,_1 (@ ,dict-var ',_1)))
              (append
               required-params
-              (mapcar #'car optional-params)
-              (ensure-list rest-param-p)
-              (mapcar #'cadar keyword-params)))
+              (ensure-list rest-param-p)))
+     (mapply (op `(,_1 (lookup-or-eval ,dict-var ',_1 ,_2)))
+             (append
+              (mapcar (op (take 2 _)) optional-params)
+              (mapcar (op (list (cadar _1) (second _1)))
+                      keyword-params)))
+     (mapcar (op `(,_1 (nth-value 1 (@ ,dict-var ',_1))))
+             (mapcar #'third
+                     (filter #'third keyword-params)))
      aux-params)))
 
 (defmacro with-argument-destructuring ((&rest bindings)
                                        (&key
                                           (argv (uiop:command-line-arguments)))
                                        &body body)
+  "Do simple argument destructuring.
+Multiple bindings can refer to the same var. The leftmost binding
+wins (in terms of defaults). This can be used to add
+short (single-char) and long keywords for the same variable.
+
+    # Accepts --long-name or -l.
+    (&key long-name ((:l long-name) long-name))
+
+Keywords arguments intended to use as flags should define a supplied-p
+variable that is the same as the variable. In this case they do not
+consume an argument.
+
+    (&key (do-thing nil do-thing) (no-do-thing nil no-do-thing))
+
+"
   (with-unique-names (dict)
     `(let ((,dict (parse-args ,argv ',bindings)))
-       (let ,(generate-binding-lookups bindings dict)
+       (let* ,(generate-binding-lookups bindings dict)
          ,@body))))
 
-;; (assert (equal '("x" "foo")
-;;                (with-argument-destructuring (x &key y)
-;;                    (:argv '("x" "-y" "foo") )
-;;                  (list x y))))
+(assert (equal '("x" "foo")
+               (with-argument-destructuring (x &key y)
+                   (:argv '("x" "-y" "foo") )
+                 (list x y))))
+(assert (null
+         (with-argument-destructuring (&key (flag nil flag))
+             (:argv '())
+           flag)))
+(assert (with-argument-destructuring (&key (flag nil flag))
+            (:argv '("--flag"))
+          flag))

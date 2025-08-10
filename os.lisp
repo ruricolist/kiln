@@ -21,15 +21,10 @@
    :parse-cmd-dsl)
   (:export
    :chdir
-   :directory-exists-p
    :exec
    :exit
-   :file-exists-p
    :getcwd
-   :getenv
-   :getenvp
    :getpid
-   :hostname
    :os-linux-p
    :setpgrp
    :with-chdir

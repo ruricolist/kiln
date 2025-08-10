@@ -30,7 +30,7 @@
 (defvar *color* :auto)
 (declaim (type color-policy *color*))
 
-(defun no-color-p ()
+(defun env-no-color-p ()
   (uiop:getenvp "NO_COLOR"))
 
 (-> stream-tty-p (stream (member :input :output))
@@ -86,7 +86,7 @@ if sure, NIL if unsure)."
      (values nil nil))))
 
 (defun want-color-p (stream)
-  (and (not (no-color-p))
+  (and (not (env-no-color-p))
        (stream-tty-p stream :output)))
 
 (defun ttyp ()

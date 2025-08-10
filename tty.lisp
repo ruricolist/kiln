@@ -39,8 +39,8 @@
   "Is STREAM a tty?
 DIRECTION should be :input or :output.
 
-Returns two booleans: the underlying TTY stream (possibly but not
-necessarily the same as STREAM), and a second value for confidence (T
+Returns two booleans: the underlying TTY stream (possibly, but not
+necessarily, the same as STREAM), and a second value for confidence (T
 if sure, NIL if unsure)."
   (declare (stream stream)
            ((member :input :output) direction))

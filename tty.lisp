@@ -36,7 +36,7 @@
 (-> stream-tty-p (stream (member :input :output))
     (values (or null stream) boolean))
 (defun stream-tty-p (stream direction)
-  "Is STREAM a ttyp
+  "Is STREAM a tty?
 DIRECTION should be :input or :output.
 
 Returns two booleans: the underlying TTY stream (possibly but not

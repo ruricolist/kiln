@@ -153,5 +153,4 @@ consume an argument.
             (ignore-some-conditions (cli:exit-error)
               (with-argument-destructuring
                   (&key ((:arg-name arg)) ((:a arg)))
-                  (:argv '("--help")
-                   )))))))
+                  (:argv '("--help"))))))))

@@ -6,6 +6,7 @@
    :kiln/hot-reload
    :kiln/script-cache
    :with-user-abort)
+  (:import-from :clingon)
   (:import-from :cmd)
   (:import-from :kiln/user)
   (:import-from :uiop)
@@ -23,6 +24,8 @@
    :script-package-error
    :script-package-error.package))
 (in-package :kiln/dispatch)
+
+(defconst +ex-usage+ 64)
 
 (deftype script-search-result ()
   '(or script asdf:system null))
@@ -160,9 +163,11 @@
     "If there is an unhandled subprocess error, return with its exit code."
     (or (uiop:subprocess-error-code e)
         (call-next-method)))
+  (:method ((e clingon:exit-error))
+    (clingon:exit-error-code e))
   ;; See https://tldp.org/LDP/abs/html/exitcodes.html
-  (:method ((e no-arguments)) 2)
-  (:method ((e no-such-package)) 126)      ;command cannot execute
+  (:method ((e no-arguments)) +ex-usage+)
+  (:method ((e no-such-package)) 126)   ;command cannot execute
   (:method ((e missing-main)) 126)      ;command cannot execute
   (:method ((e no-such-script)) 127)    ;command not found
   (:method ((e user-abort)) 130))

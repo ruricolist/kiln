@@ -6,8 +6,9 @@
   :depends-on (:kiln/all)
   :class :package-inferred-system
   :in-order-to ((build-op (load-op "kiln/scripts/rebuild")))
-  :perform
-  (build-op (o c) (symbol-call :kiln/scripts/rebuild '#:main nil)))
+  :perform (build-op (o c) (symbol-call :kiln/scripts/rebuild '#:main nil))
+  :in-order-to ((test-op (load-op "kiln/test/unit/unit")))
+  :perform (test-op (o c) (symbol-call :kiln/test/unit/unit :run-tests)))
 
 (asdf:defsystem "kiln/build"
   :description "Build the Kiln image"

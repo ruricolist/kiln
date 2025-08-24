@@ -129,28 +129,3 @@ consume an argument.
                                           ,opts
                                           ,(make-keyword suppliedp)))))
                  ,@body)))))))
-
-(assert (equal '("x" "foo")
-               (with-argument-destructuring (x &key y)
-                   (:argv '("x" "-y" "foo") :description "Unknown" :name "Unknown")
-                 (list x y))))
-
-(assert (null
-         (with-argument-destructuring (&key (flag nil flag))
-             (:argv '())
-           flag)))
-(assert (with-argument-destructuring (&key (flag nil flag))
-            (:argv '("--flag"))
-          flag))
-(assert (eql "1"
-             (with-argument-destructuring
-                 (&key ((:arg-name arg)) ((:a arg)))
-                 (:argv '("-a" "1" "--arg-name" "2"))
-               arg)))
-(assert (not
-         (emptyp
-          (with-output-to-string (*standard-output*)
-            (ignore-some-conditions (cli:exit-error)
-              (with-argument-destructuring
-                  (&key ((:arg-name arg)) ((:a arg)))
-                  (:argv '("--help"))))))))

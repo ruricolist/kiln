@@ -23,9 +23,10 @@
   (assert (not (= 0 (length system))))
   (if (find-package :ql)
       (progn
-        (format *error-output* "Found Quicklisp~%")
-        (format *error-output* "Quicklisp dist: ~a~%"
-                (uiop:symbol-call :ql :dist-version "quicklisp"))
+        (when (uiop:getenvp "KILN_DEBUG")
+          (format *error-output* "Found Quicklisp~%")
+          (format *error-output* "Quicklisp dist: ~a~%"
+                  (uiop:symbol-call :ql :dist-version "quicklisp")))
         (uiop:symbol-call :ql :register-local-projects)
         (multiple-value-call #'uiop:symbol-call
           :ql :quickload system

@@ -6,19 +6,20 @@
    :kiln/hot-reload
    :kiln/script-cache
    :with-user-abort)
-  (:import-from :clingon)
   (:import-from :cmd)
   (:import-from :kiln/user)
   (:import-from :uiop)
   (:export
    :*entry-point*
    :dispatch
+   :error-exit-code
    :exec
    :invoke-entry-point
    :invoke-script
    :missing-main
    :no-such-package
    :no-such-script
+   :print-error-and-backtrace
    :script-error
    :script-error.name
    :script-package-error
@@ -163,8 +164,6 @@
     "If there is an unhandled subprocess error, return with its exit code."
     (or (uiop:subprocess-error-code e)
         (call-next-method)))
-  (:method ((e clingon:exit-error))
-    (clingon:exit-error-code e))
   ;; See https://tldp.org/LDP/abs/html/exitcodes.html
   (:method ((e no-arguments)) +ex-usage+)
   (:method ((e no-such-package)) 126)   ;command cannot execute
@@ -254,6 +253,17 @@ Default entry point."
                  (dispatch/shebang script-name script-args)
                  (dispatch/package script-name script-args))))))))
 
+(defgeneric print-error-and-backtrace (e)
+  (:documentation "Print an error")
+  (:method ((e t))
+    (let* ((c (type-of e)))
+      (format *error-output* "~&~@(~a~): "
+              (substitute #\Space #\- (string c))))
+    (print-error e *error-output*)
+    (format *error-output* "~&")
+    (when (backtrace?)
+      (uiop:print-backtrace :condition e :stream *error-output*))))
+
 (defun invoke-entry-point ()
   "Invoke the function set as `*entry-point*' in an appropriate dynamic
 environment.
@@ -281,15 +291,7 @@ handlers to give the desired behavior for scripting."
                (unless (zerop exit-code)
                  (kill-other-threads))
                ;; NB `uiop:quit' implicitly finishes outputs.
-               (uiop:quit exit-code))
-             (print-error-and-backtrace (e)
-               (let* ((c (type-of e)))
-                 (format *error-output* "~&~@(~a~): "
-                         (substitute #\Space #\- (string c))))
-               (print-error e *error-output*)
-               (format *error-output* "~&")
-               (when (backtrace?)
-                 (uiop:print-backtrace :condition e :stream *error-output*))))
+               (uiop:quit exit-code)))
       (handler-bind (#+sbcl ((or style-warning sb-ext:compiler-note) #'muffle-warning)
                      ((or #+sbcl sb-int:broken-pipe end-of-file)
                        (lambda (e)
@@ -317,9 +319,9 @@ handlers to give the desired behavior for scripting."
                                (when (repl-on-error?)
                                  (invoke-script "repl")))))
               (with-user-abort
-                  (funcall
-                   (catch 'exec
-                     (constantly (funcall *entry-point*))))
+                (funcall
+                 (catch 'exec
+                   (constantly (funcall *entry-point*))))
                 (quit (exit-code))))
           (user-abort (e)
             (when (backtrace?)

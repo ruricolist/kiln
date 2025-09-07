@@ -31,11 +31,11 @@ Accepts -- to signal the end of the options."
 (defun main (args)
   (args:with-argument-destructuring
       (&rest strings
-       &key (n nil no-newline) (e nil interpolate))
+       &key (n nil n) (e nil e))
       (:argv args)
-    (declare (ignore n e))
-    (let* ((stdout *standard-output*))
-      (list interpolate no-newline)
+    (let ((no-newline n)
+          (interpolate e)
+          (stdout *standard-output*))
       (with-boolean (interpolate)
         (loop for (string . more?) on strings
               do (:if interpolate

@@ -60,3 +60,10 @@
             (args:with-argument-destructuring
                 (&key ((:arg-name arg)) ((:a arg)))
                 (:argv '("--version") :version "1.0"))))))))
+
+(test destructuring-trailer
+  (let ((args '("-n" "--" "--not-n")))
+    (args:with-argument-destructuring
+        (&rest more &key (n nil n) (not-n nil not-n))
+        (:argv args)
+      (list n not-n more))))

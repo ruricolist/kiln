@@ -35,6 +35,7 @@
              (make-flag-option (var keyword)
                (multiple-value-call #'cli:make-option
                  :flag
+                 ;; TODO If short version, same as --long.
                  :description ""
                  :key (values (make-keyword var))
                  (keyword-name-arg keyword)))

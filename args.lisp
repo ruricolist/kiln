@@ -84,7 +84,7 @@ and no-flag will be NIL if `--no-flag` was passed.
 The description of the command can be provided as a docstring for the
 form."
   (let ((description
-          (or (and (string (car body)) (pop body))
+          (or (and (stringp (car body)) (pop body))
               "")))
     (with-unique-names (options command opts)
       `(let* ((,options

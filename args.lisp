@@ -60,10 +60,7 @@
 (defmacro with-argument-destructuring
     ((&rest bindings)
      (&rest command-kwargs
-      &key
-        argv
-        (description "")
-        (name "")
+      &key argv (name "")
       &allow-other-keys)
      &body body)
   "Do simple argument destructuring.
@@ -82,62 +79,68 @@ consume an argument.
 
 Flags invert their initial value (with `not') when the flag is
 present. Thus, in the above, `flag' will be T if `--flag` was passed,
-and no-flag will be NIL if `--no-flag` was passed."
-  (with-unique-names (options command opts)
-    `(let* ((,options
-              (load-time-value
-               (lambda-list-options ',bindings)))
-            (,command
-              (cli:make-command
-               :options ,options
-               :description ,description
-               :name ,name
-               ,@(remove-from-plist
-                  command-kwargs
-                  :argv
-                  :description
-                  :name))))
-       ,(multiple-value-bind
-              (required-params
-               optional-params
-               rest-param-p
-               keyword-params
-               allow-other-keys-p
-               aux-params
-               allow-keys-p)
-            (parse-ordinary-lambda-list bindings)
-          (declare (ignore allow-keys-p))
-          `(let ((,opts
-                   ,(if allow-other-keys-p
-                        `(handler-bind ((cli:unknown-option
-                                          #'cli:discard-option))
-                           (cli:parse-command-line ,command ,argv))
-                        `(cli:parse-command-line ,command ,argv))))
-             (destructuring-bind (,@required-params
-                                  ,@optional-params
-                                  ,@(and rest-param-p `(&rest ,rest-param-p))
-                                  ,@aux-params)
-                 (cli:command-arguments ,opts)
-               (let* ,(nub
-                       (with-collector (collect*)
-                         (loop for ((keyword var) init suppliedp) in keyword-params do
-                           (cond ((not suppliedp)
-                                  (collect*
-                                   `(,var
-                                     (or (cli:getopt ,opts ,(make-keyword var))
-                                         ,init))))
-                                 ((eql var suppliedp)
-                                  (collect*
-                                   `(,var
-                                     (if (cli:getopt ,opts ,(make-keyword var))
-                                         (not ,init)))))
-                                 (t
-                                  (collect*
-                                   `(,var (or (cli:getopt ,opts ,(make-keyword var))
-                                              init)))
-                                  (collect*
-                                   `(,suppliedp
-                                     (cli:getopt
-                                      ,opts
-                                      ,(make-keyword suppliedp)))))))))
-                 ,@body)))))))
+and no-flag will be NIL if `--no-flag` was passed.
+
+The description of the command can be provided as a docstring for the
+form."
+  (let ((description
+          (or (and (string (car body)) (pop body))
+              "")))
+    (with-unique-names (options command opts)
+      `(let* ((,options
+                (load-time-value
+                 (lambda-list-options ',bindings)))
+              (,command
+                (cli:make-command
+                 :options ,options
+                 :description ,description
+                 :name ,name
+                 ,@(remove-from-plist
+                    command-kwargs
+                    :argv
+                    :description
+                    :name))))
+         ,(multiple-value-bind
+                (required-params
+                 optional-params
+                 rest-param-p
+                 keyword-params
+                 allow-other-keys-p
+                 aux-params
+                 allow-keys-p)
+              (parse-ordinary-lambda-list bindings)
+            (declare (ignore allow-keys-p))
+            `(let ((,opts
+                     ,(if allow-other-keys-p
+                          `(handler-bind ((cli:unknown-option
+                                            #'cli:discard-option))
+                             (cli:parse-command-line ,command ,argv))
+                          `(cli:parse-command-line ,command ,argv))))
+               (destructuring-bind (,@required-params
+                                    ,@optional-params
+                                    ,@(and rest-param-p `(&rest ,rest-param-p))
+                                    ,@aux-params)
+                   (cli:command-arguments ,opts)
+                 (let* ,(nub
+                         (with-collector (collect*)
+                           (loop for ((keyword var) init suppliedp) in keyword-params do
+                             (cond ((not suppliedp)
+                                    (collect*
+                                     `(,var
+                                       (or (cli:getopt ,opts ,(make-keyword var))
+                                           ,init))))
+                                   ((eql var suppliedp)
+                                    (collect*
+                                     `(,var
+                                       (if (cli:getopt ,opts ,(make-keyword var))
+                                           (not ,init)))))
+                                   (t
+                                    (collect*
+                                     `(,var (or (cli:getopt ,opts ,(make-keyword var))
+                                                init)))
+                                    (collect*
+                                     `(,suppliedp
+                                       (cli:getopt
+                                        ,opts
+                                        ,(make-keyword suppliedp)))))))))
+                   ,@body))))))))

@@ -23,39 +23,60 @@
       optional-params
       required-params
       rest-param-p))
-    (labels ((keyword-name-arg (keyword)
-               (if (> (length (string keyword)) 1)
-                   (values
-                    :long-name
-                    (string-downcase keyword))
-                   (values
-                    :short-name
-                    (character
-                     (string-downcase keyword)))))
-             (make-flag-option (var keyword)
-               (multiple-value-call #'cli:make-option
-                 :flag
-                 ;; TODO If short version, same as --long.
-                 :description ""
-                 :key (values (make-keyword var))
-                 (keyword-name-arg keyword)))
-             (make-string-option (var keyword)
-               (multiple-value-call #'cli:make-option
-                 :string
-                 :description ""
-                 :key (values (make-keyword var))
-                 (keyword-name-arg keyword))))
-      (loop for ((keyword var) value suppliedp) in keyword-params
-            appending
-            (if suppliedp
-                (if (eql var suppliedp)
-                    (list
-                     (make-flag-option var keyword))
-                    (list
-                     (make-flag-option var (make-keyword suppliedp))
-                     (make-string-option var keyword)))
-                (list
-                 (make-string-option var keyword)))))))
+    (mappend #'keyword-param-options keyword-params)))
+
+(defun keyword-param-options (keyword-param)
+  (labels ((shortp (keyword)
+             (length= (string keyword) 1))
+           (keyword-name-arg (keyword)
+             (if (shortp keyword)
+                 (values
+                  :short-name
+                  (character
+                   (string-downcase keyword)))
+                 (values
+                  :long-name
+                  (string-downcase keyword))))
+           (subword-word (subword)
+             (string-case (string-downcase subword)
+               ("dont" "don't")
+               (t subword)))
+           (keyword-description-arg (keyword var)
+             (let ((desc
+                     (assure string
+                       (if (shortp keyword)
+                           (let ((words
+                                   (mapcar #'subword-word
+                                           (split-sequence #\- (string var)))))
+                             (fmt "~:(~a~)~{~^ ~(~a~)~}"
+                                  (car words) (cdr words)))
+                           ""))))
+               (values :description desc)))
+           (make-flag-option (var keyword)
+             (multiple-value-call #'cli:make-option
+               :flag
+               ;; TODO If short version, same as --long.
+               :key (values (make-keyword var))
+               (keyword-description-arg keyword var)
+               (keyword-name-arg keyword)))
+           (make-string-option (var keyword)
+             (multiple-value-call #'cli:make-option
+               :string
+               :key (values (make-keyword var))
+               (keyword-description-arg keyword var)
+               (keyword-name-arg keyword))))
+    (destructuring-bind ((keyword var) value suppliedp)
+        keyword-param
+      (declare (ignore value))
+      (if suppliedp
+          (if (eql var suppliedp)
+              (list
+               (make-flag-option var keyword))
+              (list
+               (make-flag-option var (make-keyword suppliedp))
+               (make-string-option var keyword)))
+          (list
+           (make-string-option var keyword))))))
 
 (defmacro with-argument-destructuring
     ((&rest bindings)

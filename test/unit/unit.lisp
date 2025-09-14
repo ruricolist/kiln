@@ -29,9 +29,9 @@
         flag)))
 
 (test destructuring-invert-flag
-  (is (args:with-argument-destructuring (&key (no-flag t no-flag))
-          (:argv '())
-        no-flag))
+  (is (not (args:with-argument-destructuring (&key (no-flag t no-flag))
+               (:argv '())
+             no-flag)))
   (is (args:with-argument-destructuring (&key (no-flag t no-flag))
           (:argv '("--no-flag"))
         (not no-flag))))

@@ -20,9 +20,20 @@
             (stamp-size stamp2))))
 
 (defun file-executable-p (file)
-  (and (uiop:file-exists-p file)
-       (handler-case
-           (logand sb-posix:s-ixusr
-                   (sb-posix:stat-mode (sb-posix:stat file)))
-         (sb-posix:syscall-error (e)
-           (values nil e)))))
+  (unless (uiop:file-exists-p file)
+    (return-from file-executable-p nil))
+  (assure boolean
+    #+sbcl
+    (handler-case
+        (null-if-zero
+         (logand sb-posix:s-ixusr
+                 (sb-posix:stat-mode (sb-posix:stat file))))
+      (sb-posix:syscall-error (e)
+        (values nil e)))
+    #+ccl
+    (null-if-zero
+     (logand
+      #o100
+      (nth-value 1 (ccl::%stat (namestring (probe-file file))))))
+    #-(or sbcl ccl)
+    (error "Cannot determine if ~a is executable" file)))

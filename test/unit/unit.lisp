@@ -1,8 +1,9 @@
 (defpackage :kiln/test/unit/unit
-  (:use :cl :alexandria :fiveam)
+  (:use :cl :alexandria :fiveam :serapeum)
   (:local-nicknames
    (:args :kiln/args)
-   (:cli :clingon)))
+   (:cli :clingon)
+   (:stamp :kiln/stamp)))
 (in-package :kiln/test/unit/unit)
 
 (def-suite kiln)
@@ -67,3 +68,10 @@
         (&rest more &key (n nil n) (not-n nil not-n))
         (:argv args)
       (list n not-n more))))
+
+(test file-executable-p
+  (is (stamp:file-executable-p (resolve-executable "ls")))
+  (is (not (stamp:file-executable-p
+            (asdf:system-relative-pathname
+             :kiln
+             "README.md")))))

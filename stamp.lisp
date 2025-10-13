@@ -25,15 +25,17 @@
   (assure boolean
     #+sbcl
     (handler-case
-        (null-if-zero
-         (logand sb-posix:s-ixusr
-                 (sb-posix:stat-mode (sb-posix:stat file))))
+        (not
+         (zerop
+          (logand sb-posix:s-ixusr
+                  (sb-posix:stat-mode (sb-posix:stat file)))))
       (sb-posix:syscall-error (e)
         (values nil e)))
     #+ccl
-    (null-if-zero
-     (logand
-      #o100
-      (nth-value 1 (ccl::%stat (namestring (probe-file file))))))
+    (not
+     (zerop
+      (logand
+       #o100
+       (nth-value 1 (ccl::%stat (namestring (probe-file file)))))))
     #-(or sbcl ccl)
     (error "Cannot determine if ~a is executable" file)))

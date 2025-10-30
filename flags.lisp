@@ -15,6 +15,7 @@
    :+kiln-target-system+
    :+kiln-tolerant+
    :*flags*
+   :*kiln-debug*
    :dbg?
    :dbg
    :set-flags
@@ -28,6 +29,8 @@
 (defvar *flags* nil)
 
 (defvar *exit-code* 0)
+
+(defparameter *kiln-debug* nil)
 
 (def +kiln-debug+ "KILN_DEBUG")
 (def +kiln-heap-size+ "KILN_HEAP_SIZE")
@@ -53,7 +56,8 @@
                             (mapcar (op (drop-prefix "--" _))
                                     value))))
   (when (memq :debug *flags*)
-    (setf (uiop:getenv "KILN_DEBUG") "1"))
+    (setf (uiop:getenv "KILN_DEBUG") "1"
+          *kiln-debug* t))
   *flags*)
 
 (defun portable? ()
@@ -61,6 +65,7 @@
 
 (defun dbg? ()
   (or (memq :debug *flags*)
+      *kiln-debug*
       (uiop:getenvp "KILN_DEBUG")))
 
 (defun call/debug-output (fn)

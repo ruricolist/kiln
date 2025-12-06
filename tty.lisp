@@ -30,9 +30,6 @@
 (defvar *color* :auto)
 (declaim (type color-policy *color*))
 
-(defun env-no-color-p ()
-  (uiop:getenvp "NO_COLOR"))
-
 (-> stream-tty-p (stream (member :input :output))
     (values (or null stream) boolean))
 (defun stream-tty-p (stream direction)
@@ -86,8 +83,18 @@ if sure, NIL if unsure)."
      (values nil nil))))
 
 (defun want-color-p (stream)
-  (and (not (env-no-color-p))
-       (stream-tty-p stream :output)))
+  "Test if STREAM should use color.
+This depends on whether STREAM is a TTY stream, and the value of the
+environment variables NO_COLOR, CLICOLOR_FORCE, and FORCE_COLOR."
+  (let ((no-color (uiop:getenvp "NO_COLOR")))
+    (if (and no-color (not (equal no-color "0")))
+        nil
+        (let ((force
+                (or (uiop:getenv "CLICOLOR_FORCE")
+                    (uiop:getenvp "FORCE_COLOR"))))
+          (if (and force (not (equal force "0")))
+              t
+              (stream-tty-p stream :output))))))
 
 (defun ttyp ()
   "Return T if there is a controlling TTY."

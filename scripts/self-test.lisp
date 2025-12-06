@@ -222,6 +222,16 @@ This is useful when we need to test the exact output."
     (is (equal (fmt "Before exec~%Unwinding happened~%exec happened")
                result))))
 
+(5am:test test-color
+  (let* ((script (asdf:system-relative-pathname :kiln "test/test-color.lisp")))
+    (is (equal (trim-whitespace (kiln-exact-output script)) "NIL"))
+    (let ((cmd:*cmd-env* (acons "NO_COLOR" "1" cmd:*cmd-env*)))
+      (is (equal (trim-whitespace (kiln-exact-output script)) "NIL")))
+    (let ((cmd:*cmd-env* (acons "CLICOLOR_FORCE" "1" cmd:*cmd-env*)))
+      (is (equal (trim-whitespace (kiln-exact-output script)) "T")))
+    (let ((cmd:*cmd-env* (acons "FORCE_COLOR" "1" cmd:*cmd-env*)))
+      (is (equal (trim-whitespace (kiln-exact-output script)) "T")))))
+
 (5am:test entry-point
   (with-templated-test-system (:name "kiln-entry-point-system"
                                :path path

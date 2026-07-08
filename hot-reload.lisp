@@ -199,7 +199,7 @@ package scripts."
                                 s)
                   (close s)
                   (compile-file p :output-file fasl))))
-        (declare (ignore output-truename warnings-p))
+        (declare (ignore warnings-p failure-p))
         ;; Provide feedback when compilation failed
         (unless output-truename
           (format *error-output* "Compiling ~a failed" path)
@@ -238,7 +238,7 @@ If reloading just the file fails, then use ASDF to load the system,
 but direct fasls into a separate cache so we can optimize for
 compilation speed. Also, override ASDF internals so files that already
 exist are just symlinked from the old cache."
-  (declare (ignorable package))
+  (declare (ignorable package system))
   (set-compiler-policy)
   (nlet retry ()
     (handler-bind (#+sbcl
